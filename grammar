@@ -1,0 +1,19 @@
+program -> globaldefs procdefs main
+
+globaldefs -> ε 
+globaldefs -> globaldef globaldefs
+globaldef -> SET identifier TO expression
+
+procdefs -> ε 
+procdefs -> procdef procdefs
+procdef -> FUNCTION identifier (params) statements RETURNS type statements ENDFUNCTION
+params -> ε
+params -> param_list
+param_list -> identifier | identifier, param_list
+
+
+main -> FUNCTION MAIN statements  (no begin or curly braces)
+statements -> statement
+statements -> statement statements
+
+statement -> 
