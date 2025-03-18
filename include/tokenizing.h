@@ -2,11 +2,12 @@
 
 #include <iostream>
 #include <string>
+#include <regex>
 using namespace std;
 
 enum TokenType {
     Invalid = -1, Function, Read, Print, Compute, Set, Call, Increment, Decrement, 
-    Add, Sub, Mul, Div, EndFunction 
+    Add, Sub, Mul, Div, StrLit, IntLit, RealLit, Identifier, EndFunction
 };
 
 // 
@@ -23,9 +24,9 @@ const int MaxTokens = 1024;
 */
 int tokenize(token tokens[]);
 
-void storeToken(token& token, unsigned int ttype, string content, int& pos);
+void storeToken(token tokens[], unsigned int ttype, string input, int& pos);
 
-bool hanldeKeyword(string input, token& token, int& pos);
+bool hanldeKeyword(string input, token tokens[], int& pos);
 
 void printTokens(token tokens[], int size);
 
