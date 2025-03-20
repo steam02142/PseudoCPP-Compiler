@@ -38,7 +38,8 @@ int tokenize(token tokens[])
             } else if (cin.fail() || cin.eof()) {
                 cerr << "Scanning error: unclosed string after token in position " << pos - 1 << endl;
             } else {
-                cerr << "Scanning error: string has more than 2 quotes" << endl;
+                cerr << "Scanning error: string has more than 2 quotes after token in position " << pos - 1 << endl;
+                cerr << "\tstring content: " << strlit << endl;
             }
             continue;
         }
@@ -53,9 +54,6 @@ int tokenize(token tokens[])
         } else {
             cout << "Scanning error: \"" << input << "\" invalid token (found after the token in postition " << pos - 1 << ")" << endl;
         }
-
-
-        
         
     }
 

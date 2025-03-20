@@ -1,5 +1,6 @@
 #include "../include/tokenizing.h"
 #include "../include/parsing.h"
+#include "../include/context_checker.h"
 
 
 int main()
@@ -10,6 +11,8 @@ int main()
     numTokens = tokenize(tokens);
 
     // Debugging
-    printTokens(tokens, numTokens);
-    //parse();
+    parse(tokens, numTokens);
+
+    initializeScope();
+
 }

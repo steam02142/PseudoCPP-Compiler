@@ -6,8 +6,9 @@
 //     return a * b;
 // }
 
-bool parse()
+bool parse(token tokens[], int numTokens)
 {
     cout << "starting parsing" << endl;
+    printTokens(tokens, numTokens);
     return true;
 }
