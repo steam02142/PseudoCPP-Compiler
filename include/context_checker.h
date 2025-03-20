@@ -4,7 +4,7 @@
 
 using namespace std;
 
-enum SymbolType { invalid = -1, integer, realNum, stringLit };
+enum SymbolType { invalid = -1, intlit, reallit, stringlit, array };
 
 const int MaxEntries = 256;
 const int MaxParams = 16;
@@ -37,3 +37,20 @@ bool pushScope();
 bool popScope();
 
 void printActiveScopes();
+
+bool insertVariable(string name, int type, int scope);
+
+void printVariables();
+
+bool variableExists(string name);
+
+bool variableInScope(string name, int scope);
+
+// procedures
+bool insertProcedure(string name);
+
+bool insertProcedureParam(string name, int type);
+
+bool procedureExists(string name);
+
+void printProcedures();

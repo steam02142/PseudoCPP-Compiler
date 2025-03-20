@@ -14,5 +14,12 @@ int main()
     parse(tokens, numTokens);
 
     initializeScope();
+    //printProcedures();
+    insertProcedure("proc1");
+    insertProcedure("proc2");
+    insertProcedureParam("param1", 1);
+    insertProcedureParam("param2", 2);
+
+    printProcedures();
 
 }
