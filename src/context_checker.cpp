@@ -57,16 +57,16 @@ void printActiveScopes()
 }
 
 // ---- Variable Stack Functions ----
-bool insertVariable(string name, SymbolType type, int scope)
+bool insertVariable(string name, SymbolType type)
 {
-    if(variableInScope(name, scope)) { 
+    if(variableInScope(name, currentScope)) { 
         cerr << "Error: variable redeclaration" << endl;
         return false; 
     }
 
     VariableTable[numVariables].name = name;
     VariableTable[numVariables].type = type;
-    VariableTable[numVariables].scope = scope;
+    VariableTable[numVariables].scope = currentScope;
 
     numVariables++;
     return true;
@@ -86,8 +86,7 @@ bool variableExists(string name)
 {
     for(int scope = activeScopes - 1; scope >= 0; scope--){
         if(variableInScope(name, scope)){ return true; }
-    }
-    cerr << "Error: variable '" << name << "' not defined before use" << endl; 
+    } 
     return false;
 }
 

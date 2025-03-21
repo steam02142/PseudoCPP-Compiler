@@ -1,4 +1,6 @@
-SET gvar TO ( 1.0 o ( 5 + 2 ) )
+SET x TO 5
+
+SET result TO ( ( 5 + ( 3.14 * ( x - x ) ) ) / ( ( 2 + x ) * ( x + 5 ) ) )
 SET gvar TO "test"
 SET gvar TO 5
 SET gvar TO true

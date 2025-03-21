@@ -38,7 +38,7 @@ bool popScope();
 
 void printActiveScopes();
 
-bool insertVariable(string name, SymbolType type, int scope);
+bool insertVariable(string name, SymbolType type);
 
 void printVariables();
 

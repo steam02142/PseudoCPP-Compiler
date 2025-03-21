@@ -11,8 +11,6 @@ bool parse(token tokens[], int numTokens)
 {
     printTokens(tokens, numTokens);
     cout << "Beginning parsing:" << endl << endl;
-    // DEBUG TEST VAR
-    insertVariable("x", real, 0);
     
     int pos = 0;
 
@@ -80,7 +78,6 @@ bool parseGlobalVars(token tokens[], int& current)
     }
 
     if(tokens[current].ttype == To) {
-        identifier = tokens[current].content;
         current++;
     } else {
         cerr << "Error: expected assignment operator 'TO', but got " << tokens[current].content << endl;
@@ -94,9 +91,21 @@ bool parseGlobalVars(token tokens[], int& current)
         return false;
     }
     string type = typeToString(expressionType); 
-    
-    cout << type << " = " << expression << endl;
 
+    if(variableExists(identifier)) {
+        cout << identifier << " = " << expression << endl;
+        
+        SymbolType varType = getVariableType(identifier);
+        if(calculateType(varType, expressionType) == invalid) {
+            cerr << "Error: incompatible type assignment" << endl;
+            return false;
+        }
+        
+    } else {
+        cout << type << " " << identifier << " = " << expression << endl;
+        insertVariable(identifier, expressionType);
+    }
+    
     parseGlobals(tokens, current);
     return true;
 
