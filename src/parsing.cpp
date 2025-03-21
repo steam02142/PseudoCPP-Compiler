@@ -40,6 +40,17 @@ SymbolType getLiteralType(unsigned int ttype)
     else { return boolean; }
 }
 
+string typeToString(SymbolType type)
+{
+    switch(type) {
+        case integer: return "long";
+        case real: return "double";
+        case text: return "string";
+        case boolean: return "bool";
+        default: return "Invalid";
+    }
+}
+
 bool parseGlobals(token tokens[], int& current)
 {
     if(tokens[current].ttype == Set) {
@@ -77,8 +88,14 @@ bool parseGlobalVars(token tokens[], int& current)
     }
 
     expressionType = parseExpr(tokens, current, expression);
-    cout << expressionType << " " << expression << endl;
-
+    if(expressionType == invalid) {
+        cerr << "Error: Error occured while parsing expression, made it so far as: " << endl;
+        cerr << "\t " << expression << endl;
+        return false;
+    }
+    string type = typeToString(expressionType); 
+    
+    cout << type << " = " << expression << endl;
 
     parseGlobals(tokens, current);
     return true;
@@ -145,25 +162,33 @@ SymbolType calculateType(SymbolType type1, SymbolType type2)
     }
 }
 
+bool isOperator(token token)
+{
+    if (token.ttype == Add || token.ttype == Sub || token.ttype == Mul || token.ttype == Div || token.ttype == Rem){
+        return true;
+    }
+    cerr << "Error: expected operator but got '" << token.content << "' " << endl;  
+    return false;
+}
+
 SymbolType parseBinaryExpr(token tokens[], int& current, string& expression)
 {
-    // expr1Type & expr2Type then compare for compatibility (in other function)
+    // Parse left hand side
     SymbolType expr1Type = parseExpr(tokens, current, expression);
-    SymbolType expr2Type;
-    SymbolType combinedType;
-
     if(expr1Type == invalid) { return invalid; }
    
+    // add the operator
+    if(!isOperator(tokens[current])) { return invalid; }
     expression += " " + tokens[current].content + " ";
     current++;
 
-    expr2Type = parseExpr(tokens, current, expression);
-   
+    // Parse right hand side 
+    SymbolType expr2Type = parseExpr(tokens, current, expression);
     if(expr2Type == invalid) { return invalid; }
 
-    combinedType = calculateType(expr1Type, expr2Type);
-
-    if(combinedType == -1) {
+    // Check for compatability of LHS and RHS
+    SymbolType combinedType = calculateType(expr1Type, expr2Type);
+    if(combinedType == invalid) {
         cout << "Error: type mismatch in expression" << endl;
     }
 
