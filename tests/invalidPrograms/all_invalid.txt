@@ -1,0 +1,2 @@
+// adding invalid types
+SET gvar TO ( 1.0 + ( 5 + "a" ) )
