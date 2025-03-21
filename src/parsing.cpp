@@ -11,6 +11,8 @@ bool parse(token tokens[], int numTokens)
 {
     printTokens(tokens, numTokens);
     cout << "Beginning parsing:" << endl << endl;
+    // DEBUG TEST VAR
+    insertVariable("x", real, 0);
     
     int pos = 0;
 
@@ -30,6 +32,14 @@ bool isLiteral(token token)
     return false;
 }
 
+SymbolType getLiteralType(unsigned int ttype)
+{
+    if(ttype == IntLit){ return integer; } 
+    else if (ttype == RealLit) { return real; }
+    else if(ttype == TextLit) { return text; }
+    else { return boolean; }
+}
+
 bool parseGlobals(token tokens[], int& current)
 {
     if(tokens[current].ttype == Set) {
@@ -37,6 +47,7 @@ bool parseGlobals(token tokens[], int& current)
         parseGlobalVars(tokens, current);
     }
 }
+
 
 bool parseGlobalVars(token tokens[], int& current)
 {
@@ -71,26 +82,43 @@ bool parseExpr(token tokens[], int& current, string& expression)
 {
     int type = -1;
 
-    if(tokens[current].ttype == Identifier || isLiteral(tokens[current])){
+    if(tokens[current].ttype == Identifier){
+        // check ident exists and get type
         expression += tokens[current].content;
+        if(!variableExists(tokens[current].content)) { return false; }
+        type = getVariableType(tokens[current].content);
+        //return type
+
         current++;
         return true;
-    }
+    } else if(isLiteral(tokens[current])){
+        // check type and return it 
+        expression += tokens[current].content;
+        type = getLiteralType(tokens[current].ttype);
 
-    if(tokens[current].ttype == LBrack){
+        current++;
+
+        // return type
+        return true;
+    } else if(tokens[current].ttype == LBrack){
         expression += "(";
+        current++;
 
+        if (!parseBinaryExpr(tokens, current, expression)) { return false; }; 
+
+        // Unexpected token
         if(tokens[current].ttype != RBrack){
-            current++;
-            if (!parseBinaryExpr(tokens, current, expression)) { return false; };
-            
-        } else if (tokens[current].ttype == Add) {
-            expression += " " + tokens[current].content + " ";
-            current++;
-        }
+            cout << "Missing closing bracket " << endl;
+            return false;
+        } 
+        
         expression += ")";
         current++;
         return true;
+    } else {
+        // Reached end of input without bracket
+        cout << "Missing closing bracket " << endl;
+        return false;
     }
     
     
@@ -99,11 +127,13 @@ bool parseExpr(token tokens[], int& current, string& expression)
 
 bool parseBinaryExpr(token tokens[], int& current, string& expression)
 {
-   if(!parseExpr(tokens, current, expression)) { return false; }
+    // expr1Type & expr2Type then compare for compatibility (in other function)
+
+    if(!parseExpr(tokens, current, expression)) { return false; }
    
-   expression += " " + tokens[current].content + " ";
-   current++;
+    expression += " " + tokens[current].content + " ";
+    current++;
    
-   if(!parseExpr(tokens, current, expression)) { return false; }
-   return true;
+    if(!parseExpr(tokens, current, expression)) { return false; }
+    return true;
 }

@@ -1,1 +1,1 @@
-SET gvar TO ( 5 + ( ( 5 + 2 ) + 3 ) )
+SET gvar TO ( ( x + ( ( 5 + 2.1 ) + "a" ) a )

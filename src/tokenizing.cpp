@@ -7,7 +7,7 @@ int tokenize(token tokens[])
     string strlit;
 
     regex string("\"[^\"]+\"");
-    regex integer("-?[0-9]+");
+    regex intlit("-?[0-9]+");
     regex real("-?[0-9]+\\.[0-9]+");
     regex ident("[a-zA-Z]+");
 
@@ -45,7 +45,7 @@ int tokenize(token tokens[])
         }
 
         // check if it's an integer
-        else if (regex_match(input, integer)) {
+        else if (regex_match(input, intlit)) {
             storeToken(tokens, IntLit, input, pos);
         } else if (regex_match(input, real)) {
             storeToken(tokens, RealLit, input, pos);

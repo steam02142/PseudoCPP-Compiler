@@ -57,7 +57,7 @@ void printActiveScopes()
 }
 
 // ---- Variable Stack Functions ----
-bool insertVariable(string name, int type, int scope)
+bool insertVariable(string name, SymbolType type, int scope)
 {
     if(variableInScope(name, scope)) { 
         cerr << "Error: variable redeclaration" << endl;
@@ -89,6 +89,19 @@ bool variableExists(string name)
     }
     cerr << "Error: variable '" << name << "' not defined before use" << endl; 
     return false;
+}
+
+SymbolType getVariableType(string name)
+{
+    for(int scope = activeScopes - 1; scope >= 0; scope--){
+        for(int i = 0; i < numVariables; i++){
+            if(VariableTable[i].name == name && VariableTable[i].scope == scope) {
+                return VariableTable[i].type;
+            }
+        }
+    }
+    cerr << "Error: variable '" << name << "' not defined before use" << endl; 
+    return invalid;
 }
 
 
@@ -124,7 +137,7 @@ bool procedureExists(string name)
     return false;
 }
 
-bool insertProcedureParam(string name, int type)
+bool insertProcedureParam(string name, SymbolType type)
 {
     int currentProc = numProcedures - 1;
     if(ProcedureTable[currentProc].numParams >= MaxParams){

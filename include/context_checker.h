@@ -13,14 +13,14 @@ const int MaxScopes = 128;
 // ---- Variable table setup ---- 
 struct VariableEntry {
     string name;
-    int type;
+    SymbolType type;
     int scope;
 };
 
 // ---- Procedure table setup ---- 
 struct ProcParam {
     string name;
-    int type;
+    SymbolType type;
 };
 
 struct ProcedureEntry {
@@ -38,13 +38,15 @@ bool popScope();
 
 void printActiveScopes();
 
-bool insertVariable(string name, int type, int scope);
+bool insertVariable(string name, SymbolType type, int scope);
 
 void printVariables();
 
 bool variableExists(string name);
 
 bool variableInScope(string name, int scope);
+
+SymbolType getVariableType(string name);
 
 // procedures
 bool insertProcedure(string name);
