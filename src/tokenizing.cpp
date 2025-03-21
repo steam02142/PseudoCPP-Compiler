@@ -7,8 +7,8 @@ int tokenize(token tokens[])
     string strlit;
 
     regex string("\"[^\"]+\"");
-    regex integer("[0-9]+");
-    regex real("[0-9]+\\.[0-9]+");
+    regex integer("-?[0-9]+");
+    regex real("-?[0-9]+\\.[0-9]+");
     regex ident("[a-zA-Z]+");
 
     cout << "Beginning scanning:\n\n";
@@ -34,7 +34,7 @@ int tokenize(token tokens[])
                 strlit += " " + input;
             }
             if(regex_match(strlit, string)) {
-                storeToken(tokens, StrLit, strlit, pos);
+                storeToken(tokens, TextLit, strlit, pos);
             } else if (cin.fail() || cin.eof()) {
                 cerr << "Scanning error: unclosed string after token in position " << pos - 1 << endl;
             } else {
@@ -49,6 +49,8 @@ int tokenize(token tokens[])
             storeToken(tokens, IntLit, input, pos);
         } else if (regex_match(input, real)) {
             storeToken(tokens, RealLit, input, pos);
+        } else if (input == "true" || input == "false") {
+            storeToken(tokens, BoolLit, input, pos);
         } else if (regex_match(input, ident)) {
             storeToken(tokens, Identifier, input, pos);
         } else {
@@ -91,16 +93,22 @@ string ttypeTostr(unsigned int ttype)
         case Print: return "PRINT";
         case Compute: return "COMPUTE";
         case Set: return "SET";
+        case To: return "TO";
         case Call: return "CALL";
         case Increment: return "INCREMENT";
         case Decrement: return "DECREMENT";
-        case Add: return "ADD"; 
-        case Sub: return "SUB"; 
-        case Mul: return "MUL"; 
-        case Div: return "DIV"; 
-        case StrLit: return "strlit";
+        case Add: return "+"; 
+        case Sub: return "-"; 
+        case Mul: return "*"; 
+        case Div: return "/";
+        case Rem: return "%"; 
+        case TextLit: return "textlit";
         case IntLit: return "intlit";
         case RealLit: return "reallit";
+        case BoolLit: return "boollit";
+        case LBrack: return "(";
+        case RBrack: return ")";
+        case LRBrack: return  "()";
         case Identifier: return "identifier";
         case EndFunction: return "ENDFUNCTION";
         default: return "Invalid";
