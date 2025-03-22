@@ -10,6 +10,7 @@ int tokenize(token tokens[])
     regex intlit("-?[0-9]+");
     regex real("-?[0-9]+\\.[0-9]+");
     regex ident("[a-zA-Z]+");
+    regex param("[a-zA-Z]+:");
 
     cout << "Beginning scanning:\n\n";
 
@@ -53,6 +54,8 @@ int tokenize(token tokens[])
             storeToken(tokens, BoolLit, input, pos);
         } else if (regex_match(input, ident)) {
             storeToken(tokens, Identifier, input, pos);
+        } else if (regex_match(input, param)) {        
+            storeToken(tokens, Parameter, input, pos);
         } else {
             cout << "Scanning error: \"" << input << "\" invalid token (found after the token in postition " << pos - 1 << ")" << endl;
         }
@@ -106,10 +109,15 @@ string ttypeTostr(unsigned int ttype)
         case IntLit: return "intlit";
         case RealLit: return "reallit";
         case BoolLit: return "boollit";
+        case Int: return "integer";
+        case Real: return "real";
+        case Bool: return "bool";
+        case Text: return "text";
         case LBrack: return "(";
         case RBrack: return ")";
         case LRBrack: return  "()";
         case Identifier: return "identifier";
+        case Parameter: return "parameter";
         case EndFunction: return "ENDFUNCTION";
         default: return "Invalid";
 }

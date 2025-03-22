@@ -9,7 +9,9 @@ bool parse(token tokens[], int numTokens);
 
 bool parseGlobals(token tokens[], int& current);
 
-bool parseGlobalVars(token tokens[], int& current);
+bool parseVariables(token tokens[], int& current);
+
+bool parseProcedure(token tokens[], int& current);
 
 SymbolType parseExpr(token tokens[], int& current, string& expression);
 

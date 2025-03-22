@@ -17,6 +17,8 @@ bool parse(token tokens[], int numTokens)
     initializeScope();
     
     parseGlobals(tokens, pos);
+        
+
 
     return true;
 }
@@ -53,18 +55,24 @@ bool parseGlobals(token tokens[], int& current)
 {
     if(tokens[current].ttype == Set) {
         current++;
-        parseGlobalVars(tokens, current);
-    } else if(tokens[current].ttype == Set) {
+        if (!parseVariables(tokens, current)) { 
+            cerr << "Error: Issue parsing global variables" << endl;
+            return false; 
+        }
+    } else if(tokens[current].ttype == Function) {
         current++;
         //parse
-        cout << "parse procdefs here";
+        if (!parseProcedure(tokens, current)) { 
+            cerr << "Error: Issue parsing procedure declaration" << endl;
+            return false; 
+        }
     }
 
     return true;
 }
 
 
-bool parseGlobalVars(token tokens[], int& current)
+bool parseVariables(token tokens[], int& current)
 {
     string identifier;
     string expression;
@@ -111,7 +119,26 @@ bool parseGlobalVars(token tokens[], int& current)
 
 }
 
-//( e( 5 + 2) + 3 )
+// proc looks like
+// FUNCTION funcname ( int test , float var )
+// FUNCTION funcname ( test : int var : float)
+bool parseProcedure(token tokens[], int& current)
+{
+    string identifier;
+    
+    if(tokens[current].ttype == Identifier) {
+        identifier = tokens[current].content;
+        current++;
+    } else {
+        cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+
+
+}
+
+
 // returns the type that the expression evaluates to
 SymbolType parseExpr(token tokens[], int& current, string& expression)
 {
