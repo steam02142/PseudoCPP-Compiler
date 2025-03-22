@@ -13,6 +13,8 @@ bool parseVariables(token tokens[], int& current);
 
 bool parseProcedure(token tokens[], int& current);
 
+bool parseParamList(token tokens[], int& current, string& paramlist);
+
 SymbolType parseExpr(token tokens[], int& current, string& expression);
 
 SymbolType parseBinaryExpr(token tokens[], int& current, string& expression);

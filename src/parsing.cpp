@@ -32,6 +32,26 @@ bool isLiteral(token token)
     return false;
 }
 
+bool isDataType(token token)
+{
+    if(token.ttype == Integer || token.ttype == Real || token.ttype == Text || token.ttype == Bool)
+    {
+        return true;
+    }
+    return false;
+}
+
+string dataTypeToString(token token)
+{
+    switch(token.ttype) {
+        case Integer: return "long";
+        case Real: return "double";
+        case Text: return "string";
+        case Bool: return "bool";
+        default: return "Invalid";
+    }
+}
+
 SymbolType getLiteralType(unsigned int ttype)
 {
     if(ttype == IntLit){ return integer; } 
@@ -120,8 +140,7 @@ bool parseVariables(token tokens[], int& current)
 }
 
 // proc looks like
-// FUNCTION funcname ( int test , float var )
-// FUNCTION funcname ( test : int var : float)
+// FUNCTION funcname ( test: int , var : float)
 bool parseProcedure(token tokens[], int& current)
 {
     string identifier;
@@ -134,8 +153,66 @@ bool parseProcedure(token tokens[], int& current)
         return false;
     }
 
+    // parse paramlist
+    string paramlist;
+    parseParamList(tokens, current, paramlist);
+    cout << "paramlist: " << paramlist << endl;
 
+    // parse body
 
+    // from body, get return type and output procedure
+    return true;
+
+}
+
+bool parseParamList(token tokens[], int& current, string& paramlist)
+{
+    if(tokens[current].ttype == LBrack) {
+        paramlist = tokens[current].content;
+        current++;
+    } else {
+        cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    string paramName;
+    while (tokens[current].ttype != RBrack) {
+        if(tokens[current].ttype == Parameter) {
+            paramName = tokens[current].content;
+            current++;
+        } else {
+            cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+            return false;
+        }
+
+        if(isDataType(tokens[current])) {
+            paramlist += dataTypeToString(tokens[current]) + " " + paramName; 
+            current++;
+        } else {
+            cerr << "Error: expected data type, but got " << tokens[current].content << endl;
+            return false;
+        }
+
+        if(tokens[current].ttype == Comma) {
+            paramlist += tokens[current].content + " ";
+            current++;
+        } else if(tokens[current].ttype == RBrack) {
+            break;
+        } else {
+            cerr << "Error: expected comma, but got " << tokens[current].content << endl;
+            return false;
+        }
+    }
+
+    if(tokens[current].ttype == RBrack) {
+        paramlist += tokens[current].content;
+        current++;
+    } else {
+        cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    return true;
 }
 
 

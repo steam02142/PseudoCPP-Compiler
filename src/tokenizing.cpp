@@ -54,7 +54,9 @@ int tokenize(token tokens[])
             storeToken(tokens, BoolLit, input, pos);
         } else if (regex_match(input, ident)) {
             storeToken(tokens, Identifier, input, pos);
-        } else if (regex_match(input, param)) {        
+        } else if (regex_match(input, param)) { 
+            // remove the colon, not used in translated language
+            input.pop_back();
             storeToken(tokens, Parameter, input, pos);
         } else {
             cout << "Scanning error: \"" << input << "\" invalid token (found after the token in postition " << pos - 1 << ")" << endl;
@@ -109,10 +111,11 @@ string ttypeTostr(unsigned int ttype)
         case IntLit: return "intlit";
         case RealLit: return "reallit";
         case BoolLit: return "boollit";
-        case Int: return "integer";
+        case Integer: return "int";
         case Real: return "real";
         case Bool: return "bool";
         case Text: return "text";
+        case Comma: return ",";
         case LBrack: return "(";
         case RBrack: return ")";
         case LRBrack: return  "()";

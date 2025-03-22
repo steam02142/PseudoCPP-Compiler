@@ -1,4 +1,4 @@
 SET gvar TO 5
 SET gvar TO 6
 
-var:
+FUNCTION add ( var: int , vartwo: text )
