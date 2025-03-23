@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include "tokenizing.h"
 
 using namespace std;
 
-enum SymbolType { invalid = -1, integer, real, text, boolean };
+enum SymbolType { invalid = -1, integer = Integer, real = Real, text = Text, boolean = Boolean };
 
 const int MaxEntries = 256;
 const int MaxParams = 16;
@@ -29,6 +30,7 @@ struct ProcedureEntry {
     struct ProcParam parameters[MaxParams];
 };
 
+enum SymbolType tokenTypeToSymbolType(unsigned int type);
 
 void initializeScope();
 
@@ -51,7 +53,7 @@ SymbolType getVariableType(string name);
 // procedures
 bool insertProcedure(string name);
 
-bool insertProcedureParam(string name, int type);
+bool insertProcedureParam(string name, SymbolType type);
 
 bool procedureExists(string name);
 

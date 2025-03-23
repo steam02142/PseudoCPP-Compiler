@@ -113,7 +113,7 @@ string ttypeTostr(unsigned int ttype)
         case BoolLit: return "boollit";
         case Integer: return "int";
         case Real: return "real";
-        case Bool: return "bool";
+        case Boolean: return "bool";
         case Text: return "text";
         case Comma: return ",";
         case LBrack: return "(";

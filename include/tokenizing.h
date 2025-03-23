@@ -8,7 +8,7 @@ using namespace std;
 enum TokenType {
     Invalid = -1, Function, Read, Print, Compute, Set, To, Call, Increment, Decrement, 
     Add, Sub, Mul, Div, Rem, TextLit, IntLit, RealLit, BoolLit, Identifier, 
-    Integer, Real, Bool, Text, Parameter, Comma, LBrack, RBrack, LRBrack, EndFunction
+    Integer, Real, Boolean, Text, Parameter, Comma, LBrack, RBrack, LRBrack, EndFunction
 };
 
 // 

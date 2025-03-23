@@ -112,6 +112,17 @@ void printVariables()
     cout << endl;
 }
 
+enum SymbolType tokenTypeToSymbolType(unsigned int type)
+{
+    switch(type){
+        case Integer: return integer;
+        case Real: return real;
+        case Text: return text;
+        case Boolean: return boolean;
+        default: return invalid;
+    }
+}
+
 
 // ---- Procedure Stack Functions ----
 bool insertProcedure(string name)

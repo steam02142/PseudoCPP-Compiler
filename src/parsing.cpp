@@ -34,7 +34,7 @@ bool isLiteral(token token)
 
 bool isDataType(token token)
 {
-    if(token.ttype == Integer || token.ttype == Real || token.ttype == Text || token.ttype == Bool)
+    if(token.ttype == Integer || token.ttype == Real || token.ttype == Text || token.ttype == Boolean)
     {
         return true;
     }
@@ -47,7 +47,7 @@ string dataTypeToString(token token)
         case Integer: return "long";
         case Real: return "double";
         case Text: return "string";
-        case Bool: return "bool";
+        case Boolean: return "bool";
         default: return "Invalid";
     }
 }
@@ -147,6 +147,9 @@ bool parseProcedure(token tokens[], int& current)
     
     if(tokens[current].ttype == Identifier) {
         identifier = tokens[current].content;
+        // Add the procedure and enter a new scope for paramlist
+        if(!insertProcedure(identifier)) { return false; }
+        if(!pushScope()) { return false; }
         current++;
     } else {
         cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
@@ -161,6 +164,7 @@ bool parseProcedure(token tokens[], int& current)
     // parse body
 
     // from body, get return type and output procedure
+    printProcedures();
     return true;
 
 }
@@ -187,6 +191,7 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
 
         if(isDataType(tokens[current])) {
             paramlist += dataTypeToString(tokens[current]) + " " + paramName; 
+            insertProcedureParam(paramName, tokenTypeToSymbolType(tokens[current].ttype));
             current++;
         } else {
             cerr << "Error: expected data type, but got " << tokens[current].content << endl;
