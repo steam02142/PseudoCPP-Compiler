@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include "tokenizing.h"
 #include "../include/context_checker.h"
 using namespace std;

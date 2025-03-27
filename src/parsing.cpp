@@ -4,6 +4,8 @@
 int indent = 0;
 int currentLine = 0;
 
+ofstream OutputProgram("output.cpp");
+
 // use templates for functinos
 // template <typename T> 
 // T multiply(T a, T b) {
@@ -26,11 +28,9 @@ bool parse(token tokens[], int numTokens)
     return true;
 }
 
-ostream& codeEndl(ostream& os)
+void errorMessage(token tokens)
 {
-    os << endl;
-    currentLine++;
-    return os;
+    cerr << "Error (line " << tokens.line << ", col " << tokens.column << "): ";
 }
 
 void printIndent()
@@ -121,21 +121,22 @@ bool parseGlobalVariable(token tokens[], int& current)
         identifier = tokens[current].content;
         current++;
     } else {
-        cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << " expected identifier, but got " << tokens[current].content << endl;
         return false;
     }
 
     if(tokens[current].ttype == To) {
         current++;
     } else {
-        cerr << "Error: expected assignment operator 'TO', but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << " expected assignment operator 'TO', but got " << tokens[current].content << endl;
         return false;
     }
 
     expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid) {
-        cerr << "Error: Error occured while parsing expression, made it so far as: " << endl;
-        cerr << "\t " << expression << endl;
+        cerr << "Error: Error occured while parsing expression" << endl;
         return false;
     }
     string type = typeToString(expressionType); 
@@ -145,7 +146,8 @@ bool parseGlobalVariable(token tokens[], int& current)
         
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
-            cerr << "Error: incompatible type assignment" << endl;
+            errorMessage(tokens[current]);
+            cerr << " incompatible type assignment" << endl;
             return false;
         }
         
@@ -171,7 +173,8 @@ bool parseProcedure(token tokens[], int& current)
         if(!pushScope()) { return false; }
         current++;
     } else {
-        cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << " expected identifier, but got " << tokens[current].content << endl;
         return false;
     }
 
@@ -205,7 +208,8 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
         paramlist = tokens[current].content;
         current++;
     } else {
-        cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << "expected left bracket, but got " << tokens[current].content << endl;
         return false;
     }
 
@@ -215,7 +219,8 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
             paramName = tokens[current].content;
             current++;
         } else {
-            cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+            errorMessage(tokens[current]);
+            cerr << "expected left bracket, but got " << tokens[current].content << endl;
             return false;
         }
 
@@ -224,7 +229,8 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
             insertProcedureParam(paramName, tokenTypeToSymbolType(tokens[current].ttype));
             current++;
         } else {
-            cerr << "Error: expected data type, but got " << tokens[current].content << endl;
+            errorMessage(tokens[current]); 
+            cerr << "expected data type, but got " << tokens[current].content << endl;
             return false;
         }
 
@@ -234,7 +240,8 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
         } else if(tokens[current].ttype == RBrack) {
             break;
         } else {
-            cerr << "Error: expected comma, but got " << tokens[current].content << endl;
+            errorMessage(tokens[current]);
+            cerr << "expected comma, but got " << tokens[current].content << endl;
             return false;
         }
     }
@@ -243,7 +250,8 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
         paramlist += tokens[current].content;
         current++;
     } else {
-        cerr << "Error: expected left bracket, but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << "expected left bracket, but got " << tokens[current].content << endl;
         return false;
     }
 
@@ -313,7 +321,8 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
 
         // Unexpected token
         if(tokens[current].ttype != RBrack){
-            cout << "Missing closing bracket " << endl;
+            errorMessage(tokens[current]);
+            cerr << "missing closing bracket " << endl;
             return invalid;
         } 
         
@@ -322,7 +331,8 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
         return type;
     } else {
         // Reached end of input without bracket
-        cout << "Missing closing bracket " << endl;
+        errorMessage(tokens[current]);
+        cerr << "missing closing bracket " << endl;
         return invalid;
     }
     
@@ -337,21 +347,22 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
         identifier = tokens[current].content;
         current++;
     } else {
-        cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << "expected identifier, but got " << tokens[current].content << endl;
         return false;
     }
 
     if(tokens[current].ttype == To) {
         current++;
     } else {
-        cerr << "Error: expected assignment operator 'TO', but got " << tokens[current].content << endl;
+        errorMessage(tokens[current]);
+        cerr << "expected assignment operator 'TO', but got " << tokens[current].content << endl;
         return false;
     }
 
     expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid) {
-        cerr << "Error: Error occured while parsing expression, made it so far as: " << endl;
-        cerr << "\t " << expression << endl;
+        cerr << "Error occured while parsing expression" << endl;
         return false;
     }
     string type = typeToString(expressionType); 
@@ -362,7 +373,8 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
 
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
-            cerr << "Error: incompatible type assignment" << endl;
+            errorMessage(tokens[current]);
+            cerr << "incompatible type assignment" << endl;
             return false;
         }
         
@@ -392,7 +404,8 @@ bool isOperator(token token)
     if (token.ttype == Add || token.ttype == Sub || token.ttype == Mul || token.ttype == Div || token.ttype == Rem){
         return true;
     }
-    cerr << "Error: expected operator but got '" << token.content << "' " << endl;  
+    errorMessage(token);
+    cerr << "expected operator but got '" << token.content << "' " << endl;  
     return false;
 }
 
@@ -414,7 +427,8 @@ SymbolType parseBinaryExpr(token tokens[], int& current, string& expression)
     // Check for compatability of LHS and RHS
     SymbolType combinedType = calculateType(expr1Type, expr2Type);
     if(combinedType == invalid) {
-        cout << "Error: type mismatch in expression" << endl;
+        errorMessage(tokens[current]);
+        cerr << "type mismatch in expression" << endl;
     }
 
     return combinedType;

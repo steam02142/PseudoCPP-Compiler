@@ -1,8 +1,8 @@
 SET gvar TO 5
 SET gvar TO 6
-SET test TO "best stuff
+SET test TO "best stuff"
 
 FUNCTION add ( var: int , vartwo: text ) 
-    SET newva%r TO 10
+    SET newvar TO 10
     
 ENDFUNCTION
