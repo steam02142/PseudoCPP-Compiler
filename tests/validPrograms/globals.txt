@@ -4,5 +4,8 @@ SET test TO "best stuff"
 
 FUNCTION add ( var: int , vartwo: text ) 
     SET newvar TO 10
+    READ newvar
+    PRINT ( newvar + vars )
+
     
 ENDFUNCTION

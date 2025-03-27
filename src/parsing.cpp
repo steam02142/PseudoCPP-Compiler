@@ -142,7 +142,7 @@ bool parseGlobalVariable(token tokens[], int& current)
     string type = typeToString(expressionType); 
 
     if(variableExists(identifier)) {
-        cout << identifier << " = " << expression << endl;
+        cout << identifier << " = " << expression << ";" << endl;
         
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
@@ -152,7 +152,7 @@ bool parseGlobalVariable(token tokens[], int& current)
         }
         
     } else {
-        cout << type << " " << identifier << " = " << expression << endl;
+        cout << type << " " << identifier << " = " << expression << ";" << endl;
         insertVariable(identifier, expressionType);
     }
     
@@ -183,7 +183,7 @@ bool parseProcedure(token tokens[], int& current)
     parseParamList(tokens, current, paramlist); 
 
     ostringstream functionStream;
-    functionStream << procedureName << paramlist << '\n';
+    functionStream << procedureName << paramlist << " {" << endl;
     
 
     // parse body
@@ -226,7 +226,10 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
 
         if(isDataType(tokens[current])) {
             paramlist += dataTypeToString(tokens[current]) + " " + paramName; 
+            // add as procedure param for type checking during call later
             insertProcedureParam(paramName, tokenTypeToSymbolType(tokens[current].ttype));
+            // add as variable so we can check it exists before use
+            insertVariable(paramName, tokenTypeToSymbolType(tokens[current].ttype));
             current++;
         } else {
             errorMessage(tokens[current]); 
@@ -270,8 +273,13 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
                 if (!parseVariable(tokens, current, functionStream)) { return invalid; }
                 break;
             case Read:
+                current++;
+                if (!parseRead(tokens, current, functionStream)) { return invalid; }
                 break;
             case Print:
+                current++;
+                printProcedures();
+                if (!parsePrint(tokens, current, functionStream)) { return invalid; }
                 break;
             case Call:
                 break;
@@ -287,6 +295,36 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
     indent--;
 }
 
+bool parseRead(token tokens[], int& current, ostringstream& functionStream)
+{
+    if(tokens[current].ttype == Identifier) {
+        if(!variableExists(tokens[current].content)) { 
+            errorMessage(tokens[current]);
+            cerr << "variable not declared before attempting to read into it " << endl;
+            return false; 
+        }
+        functionStream << "cin >> " << tokens[current].content << ";" << endl;
+        current++;
+        return true;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "expected identifier, but got " << tokens[current].content << endl;
+        return false;
+    }
+}
+
+bool parsePrint(token tokens[], int& current, ostringstream& functionStream)
+{
+    string expression;
+    if(parseExpr(tokens, current, expression) == invalid){
+        cerr << "Error: Error parsing print" << endl;
+        return false;
+    }
+
+    functionStream << "cout << " << expression << ";" << endl;
+
+    return true;
+}
 
 // returns the type that the expression evaluates to
 SymbolType parseExpr(token tokens[], int& current, string& expression)
@@ -369,7 +407,7 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
 
     if(variableExists(identifier)) {
         //cout << identifier << " = " << expression << endl;
-        functionStream << identifier << " = " << expression << '\n';
+        functionStream << identifier << " = " << expression << ";" << endl;
 
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
@@ -380,7 +418,7 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
         
     } else {
         //cout << type << " " << identifier << " = " << expression << endl;
-        functionStream << type << " " << identifier << " = " << expression << '\n';
+        functionStream << type << " " << identifier << " = " << expression << ";" << endl;
         insertVariable(identifier, expressionType);
     }
     

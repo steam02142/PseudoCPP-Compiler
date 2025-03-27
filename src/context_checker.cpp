@@ -178,7 +178,7 @@ void printProcedures()
         cout << ProcedureTable[i].name << endl; 
         cout << "Parameters: ";
         for(int j = 0; j < ProcedureTable[i].numParams; j++){
-            cout << ProcedureTable[i].parameters[j].name << " ";
+            cout << ProcedureTable[i].parameters[j].name << " (type: " << ProcedureTable[i].parameters[j].type << ") ";
         }
         cout << endl << endl;
     }

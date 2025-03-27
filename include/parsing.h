@@ -26,3 +26,7 @@ SymbolType calculateType(SymbolType type1, SymbolType type2);
 SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream);
 
 bool parseVariable(token tokens[], int& current, ostringstream& functionStream);
+
+bool parseRead(token tokens[], int& current, ostringstream& functionStream);
+
+bool parsePrint(token tokens[], int& current, ostringstream& functionStream);
