@@ -334,7 +334,11 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
     if(tokens[current].ttype == Identifier){
         // check ident exists and get type
         expression += tokens[current].content;
-        if(!variableExists(tokens[current].content)) { return invalid; }
+        if(!variableExists(tokens[current].content)) { 
+            errorMessage(tokens[current]);
+            cerr << "variable " << tokens[current].content << " not defined before use" << endl; 
+            return invalid; 
+        }
         type = getVariableType(tokens[current].content);
         //return type
 
