@@ -1,6 +1,8 @@
 #include "../include/parsing.h"
 #include "../include/context_checker.h"
 
+int indent = 0;
+
 // use templates for functinos
 // template <typename T> 
 // T multiply(T a, T b) {
@@ -21,6 +23,16 @@ bool parse(token tokens[], int numTokens)
 
 
     return true;
+}
+
+void printIndent()
+{
+   cout << string(indent * 3, ' ');
+}
+
+string getIndent()
+{
+    return string(indent * 3, ' ');
 }
 
 bool isLiteral(token token)
@@ -75,7 +87,7 @@ bool parseGlobals(token tokens[], int& current)
 {
     if(tokens[current].ttype == Set) {
         current++;
-        if (!parseVariables(tokens, current)) { 
+        if (!parseGlobalVariable(tokens, current)) { 
             cerr << "Error: Issue parsing global variables" << endl;
             return false; 
         }
@@ -92,7 +104,7 @@ bool parseGlobals(token tokens[], int& current)
 }
 
 
-bool parseVariables(token tokens[], int& current)
+bool parseGlobalVariable(token tokens[], int& current)
 {
     string identifier;
     string expression;
@@ -136,19 +148,18 @@ bool parseVariables(token tokens[], int& current)
     
     parseGlobals(tokens, current);
     return true;
-
 }
 
 // proc looks like
 // FUNCTION funcname ( test: int , var : float)
 bool parseProcedure(token tokens[], int& current)
 {
-    string identifier;
+    string procedureName;
     
     if(tokens[current].ttype == Identifier) {
-        identifier = tokens[current].content;
+        procedureName = tokens[current].content;
         // Add the procedure and enter a new scope for paramlist
-        if(!insertProcedure(identifier)) { return false; }
+        if(!insertProcedure(procedureName)) { return false; }
         if(!pushScope()) { return false; }
         current++;
     } else {
@@ -158,19 +169,30 @@ bool parseProcedure(token tokens[], int& current)
 
     // parse paramlist
     string paramlist;
-    parseParamList(tokens, current, paramlist);
-    cout << "paramlist: " << paramlist << endl;
+    parseParamList(tokens, current, paramlist); 
+
+    ostringstream functionStream;
+    functionStream << procedureName << paramlist << '\n';
+    
 
     // parse body
+    parseBody(tokens, current, functionStream);
+    cout << functionStream.str();
 
     // from body, get return type and output procedure
-    printProcedures();
+
     return true;
 
 }
 
 bool parseParamList(token tokens[], int& current, string& paramlist)
 {
+    // Empty parameter list
+    if(tokens[current].ttype == LRBrack) {
+        current++;
+        return true;
+    }
+
     if(tokens[current].ttype == LBrack) {
         paramlist = tokens[current].content;
         current++;
@@ -220,6 +242,24 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
     return true;
 }
 
+SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream)
+{
+    indent++;
+
+    while(tokens[current].ttype != EndFunction){
+        functionStream << getIndent();
+        switch(tokens[current].ttype){
+            case Set:
+                current++;
+                if (!parseVariable(tokens, current, functionStream)) { return invalid; }
+                break;
+            default:
+                return invalid;
+        }
+    }
+    indent--;
+}
+
 
 // returns the type that the expression evaluates to
 SymbolType parseExpr(token tokens[], int& current, string& expression)
@@ -267,6 +307,54 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
         return invalid;
     }
     
+}
+
+bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
+{
+    string identifier;
+    string expression;
+    SymbolType expressionType;
+    if(tokens[current].ttype == Identifier) {
+        identifier = tokens[current].content;
+        current++;
+    } else {
+        cerr << "Error: expected identifier, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    if(tokens[current].ttype == To) {
+        current++;
+    } else {
+        cerr << "Error: expected assignment operator 'TO', but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    expressionType = parseExpr(tokens, current, expression);
+    if(expressionType == invalid) {
+        cerr << "Error: Error occured while parsing expression, made it so far as: " << endl;
+        cerr << "\t " << expression << endl;
+        return false;
+    }
+    string type = typeToString(expressionType); 
+
+    if(variableExists(identifier)) {
+        //cout << identifier << " = " << expression << endl;
+        functionStream << identifier << " = " << expression << '\n';
+
+        SymbolType varType = getVariableType(identifier);
+        if(calculateType(varType, expressionType) == invalid) {
+            cerr << "Error: incompatible type assignment" << endl;
+            return false;
+        }
+        
+    } else {
+        //cout << type << " " << identifier << " = " << expression << endl;
+        functionStream << type << " " << identifier << " = " << expression << '\n';
+        insertVariable(identifier, expressionType);
+    }
+    
+    return true;
+
 }
 
 SymbolType calculateType(SymbolType type1, SymbolType type2)
