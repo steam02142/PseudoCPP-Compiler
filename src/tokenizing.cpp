@@ -1,78 +1,111 @@
 #include "../include/tokenizing.h"
 
-int tokenize(token tokens[])
-{
+int tokenize(token tokens[]) {
     int pos = 0;
-    string input;
-    string strlit;
+    int currentLine = 1;
+    int currentColumn = 1;
+    char c;
+    string currentToken;
+    bool inString = false;
+    bool invalidTokenDetected = false;
 
-    regex string("\"[^\"]+\"");
+    cout << "Beginning scanning:\n\n";
+
+    while (cin.get(c)) {
+        if (c == '\n') {
+            if (inString) {
+                cerr << "Error (line " << currentLine << ", col " << currentColumn 
+                     << "): Unclosed string\n";
+                inString = false;
+                invalidTokenDetected = true;
+            }
+            processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
+            currentLine++;
+            currentColumn = 1;
+        }
+        else if ((c == ' ' || c == '\t' || c == '\r' || c == '\v' || c == '\f') && !inString) {
+            processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
+            currentColumn++;
+        } else {
+            if (c == '"') {
+                if (!inString) {
+                    // Start of string
+                    inString = true;
+                } else {
+                    // End of string
+                    inString = false;
+                }
+            }
+            currentToken += c;
+            currentColumn++;
+        }
+    }
+
+    // Handle unclosed strings or tokens when input ends
+    if (inString) {
+        cerr << "Error (line " << currentLine << ", col " << currentColumn 
+             << "): Unclosed string\n";
+        invalidTokenDetected = true;
+    }
+
+    processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
+    if (invalidTokenDetected) {
+        return -1;
+    }
+    return pos;
+}
+
+void processToken(string& currentToken, token tokens[], int& pos, int currentLine, int currentColumn, bool& invalidTokenDetected) {
+    if (currentToken.empty()) return;
+
+    int tokenStartColumn = currentColumn - currentToken.length();
+
+    if (hanldeKeyword(currentToken, tokens, pos, currentLine, tokenStartColumn)) {
+        currentToken.clear();
+        return;
+    }
+
     regex intlit("-?[0-9]+");
     regex real("-?[0-9]+\\.[0-9]+");
     regex ident("[a-zA-Z]+");
     regex param("[a-zA-Z]+:");
 
-    cout << "Beginning scanning:\n\n";
-
-    // In order, check: keywords, integers, reals, strings, identifiers
-    //      Later add: booleans, arrays
-    while (cin >> skipws >> input) {
-        
-
-        if (hanldeKeyword(input, tokens, pos)){
-            continue; // move to next token
-        }
-
-        // check if it's a string
-        if(input[0] == '"') {
-            cout << "input " << input << endl; 
-            strlit = input;
-            while(input[input.length() - 1] != '"') {
-                if(cin.fail() || cin.eof()){
-                    break;
-                }
-                cin >> skipws >> input;
-                strlit += " " + input;
-            }
-            if(regex_match(strlit, string)) {
-                storeToken(tokens, TextLit, strlit, pos);
-            } else if (cin.fail() || cin.eof()) {
-                cerr << "Scanning error: unclosed string after token in position " << pos - 1 << endl;
-            } else {
-                cerr << "Scanning error: string has more than 2 quotes after token in position " << pos - 1 << endl;
-                cerr << "\tstring content: " << strlit << endl;
-            }
-            continue;
-        }
-
-        // check if it's an integer
-        else if (regex_match(input, intlit)) {
-            storeToken(tokens, IntLit, input, pos);
-        } else if (regex_match(input, real)) {
-            storeToken(tokens, RealLit, input, pos);
-        } else if (input == "true" || input == "false") {
-            storeToken(tokens, BoolLit, input, pos);
-        } else if (regex_match(input, ident)) {
-            storeToken(tokens, Identifier, input, pos);
-        } else if (regex_match(input, param)) { 
-            // remove the colon, not used in translated language
-            input.pop_back();
-            storeToken(tokens, Parameter, input, pos);
-        } else {
-            cout << "Scanning error: \"" << input << "\" invalid token (found after the token in postition " << pos - 1 << ")" << endl;
-        }
-        
+    if (currentToken[0] == '"') {
+        storeToken(tokens, TextLit, currentToken, pos, currentLine, tokenStartColumn);
+        currentToken.clear();
+        return;
+    }
+    else if (regex_match(currentToken, intlit)) {
+        storeToken(tokens, IntLit, currentToken, pos, currentLine, tokenStartColumn);
+    }
+    else if (regex_match(currentToken, real)) {
+        storeToken(tokens, RealLit, currentToken, pos, currentLine, tokenStartColumn);
+    }
+    else if (currentToken == "true" || currentToken == "false") {
+        storeToken(tokens, BoolLit, currentToken, pos, currentLine, tokenStartColumn);
+    }
+    else if (regex_match(currentToken, ident)) {
+        storeToken(tokens, Identifier, currentToken, pos, currentLine, tokenStartColumn);
+    }
+    else if (regex_match(currentToken, param)) {
+        currentToken.pop_back(); // Remove colon
+        storeToken(tokens, Parameter, currentToken, pos, currentLine, tokenStartColumn);
+    }
+    else {
+        cerr << "Error (line " << currentLine << ", col " << tokenStartColumn 
+             << "): Invalid token '" << currentToken << "'\n";
+        invalidTokenDetected = true;
     }
 
-    return pos;
+    currentToken.clear();
 }
 
-bool hanldeKeyword(string input, token tokens[], int& pos)
+bool hanldeKeyword(string input, token tokens[], int& pos, int line, int column)
 {
     for (unsigned int keypos = Function; keypos <= EndFunction; keypos++) {
         string keyword = ttypeTostr(keypos);
         if (keyword == input) {
-            storeToken(tokens, keypos, input, pos);
+            storeToken(tokens, keypos, input, pos, line, column);
             return  true;
         }
     }
@@ -81,11 +114,13 @@ bool hanldeKeyword(string input, token tokens[], int& pos)
     return false;
 }
 
-void storeToken(token tokens[], unsigned int ttype, string input, int& pos)
+void storeToken(token tokens[], unsigned int ttype, string input, int& pos, int line, int column)
 {
     tokens[pos].ttype = ttype;
     tokens[pos].content = input;
     tokens[pos].pos = pos;
+    tokens[pos].line = line;
+    tokens[pos].column = column;
 
     pos++;
 }
@@ -133,6 +168,7 @@ void printTokens(token tokens[], int size)
     for (int pos = 0; pos < size; pos++) {
         cout << "Token " << pos << ": " << ttypeTostr(tokens[pos].ttype);
         cout << ", input: " << tokens[pos].content << endl;
+        cout << '\t' << "found on column: " << tokens[pos].column << " and line: " << tokens[pos].line << endl; 
     }
     cout << "\n---end of tokens---\n\n";
 }

@@ -2,6 +2,7 @@
 #include "../include/context_checker.h"
 
 int indent = 0;
+int currentLine = 0;
 
 // use templates for functinos
 // template <typename T> 
@@ -23,6 +24,13 @@ bool parse(token tokens[], int numTokens)
 
 
     return true;
+}
+
+ostream& codeEndl(ostream& os)
+{
+    os << endl;
+    currentLine++;
+    return os;
 }
 
 void printIndent()
@@ -253,6 +261,17 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
                 current++;
                 if (!parseVariable(tokens, current, functionStream)) { return invalid; }
                 break;
+            case Read:
+                break;
+            case Print:
+                break;
+            case Call:
+                break;
+            // case If:
+            //     break;
+            // case ForLoop:
+            //     break;
+
             default:
                 return invalid;
         }

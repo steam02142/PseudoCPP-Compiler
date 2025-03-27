@@ -16,6 +16,8 @@ struct token {
     unsigned int ttype;
     string content;
     int pos;
+    int line;
+    int column;
 };
 
 const int MaxTokens = 1024;
@@ -25,9 +27,11 @@ const int MaxTokens = 1024;
 */
 int tokenize(token tokens[]);
 
-void storeToken(token tokens[], unsigned int ttype, string input, int& pos);
+void processToken(string& currentToken, token tokens[], int& pos, int currentLine, int currentColumn, bool& invalidTokenDetected);
 
-bool hanldeKeyword(string input, token tokens[], int& pos);
+void storeToken(token tokens[], unsigned int ttype, string input, int& pos, int line, int column);
+
+bool hanldeKeyword(string input, token tokens[], int& pos, int line, int column);
 
 void printTokens(token tokens[], int size);
 

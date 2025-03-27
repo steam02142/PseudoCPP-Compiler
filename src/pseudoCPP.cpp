@@ -9,8 +9,7 @@ int main()
     int numTokens;
 
     numTokens = tokenize(tokens);
-
-    // Debugging
-    parse(tokens, numTokens);
-
+    if (numTokens > 0){
+        parse(tokens, numTokens);
+    }
 }
