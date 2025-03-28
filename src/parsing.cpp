@@ -157,6 +157,7 @@ bool parseGlobalVariable(token tokens[], int& current)
 bool parseProcedure(token tokens[], int& current)
 {
     string procedureName;
+    string procedureType;
     
     if(tokens[current].ttype == Identifier) {
         procedureName = tokens[current].content;
@@ -174,8 +175,28 @@ bool parseProcedure(token tokens[], int& current)
     string paramlist;
     parseParamList(tokens, current, paramlist); 
 
+    if(tokens[current].ttype == TypeArrow) {
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << " expected '->', but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    if(isDataType(tokens[current])) {
+        procedureType = dataTypeToString(tokens[current]);
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << " datatype but got: " << tokens[current].content << endl;
+        return false;
+    }
+
+
+
+
     ostringstream functionStream;
-    functionStream << procedureName << paramlist << " {" << endl;
+    functionStream << procedureType << " " << procedureName << paramlist << " {" << endl;
     
 
     // parse body

@@ -2,12 +2,12 @@ SET gvar TO 5
 SET gvar TO 6
 SET test TO "best stuff"
 
-FUNCTION add ( var: int , vartwo: text ) 
+FUNCTION add ( var: int , vartwo: text ) -> int
     SET newvar TO 10
     READ newvar
     PRINT ( newvar + var )
 
-    IF  1 > faswe && ( 2 < 10 || 4 == 0 )
+    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
         SET newvar TO 11
     ENDIF
 

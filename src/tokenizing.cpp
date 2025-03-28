@@ -149,6 +149,7 @@ string ttypeTostr(unsigned int ttype)
         case Ne: return "!=";
         case Eq: return "==";
         case And: return "&&";
+        case TypeArrow: return "->";
         case Or: return "||";
         case Not: return "!";
         case If: return "IF";
