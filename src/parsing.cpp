@@ -2,7 +2,6 @@
 #include "../include/context_checker.h"
 
 int indent = 0;
-int currentLine = 0;
 
 ofstream OutputProgram("output.cpp");
 
@@ -22,8 +21,6 @@ bool parse(token tokens[], int numTokens)
     initializeScope();
     
     parseGlobals(tokens, pos);
-        
-
 
     return true;
 }
@@ -31,11 +28,6 @@ bool parse(token tokens[], int numTokens)
 void errorMessage(token tokens)
 {
     cerr << "Error (line " << tokens.line << ", col " << tokens.column << "): ";
-}
-
-void printIndent()
-{
-   cout << string(indent * 3, ' ');
 }
 
 string getIndent()
@@ -187,7 +179,13 @@ bool parseProcedure(token tokens[], int& current)
     
 
     // parse body
-    parseBody(tokens, current, functionStream);
+
+    while(tokens[current].ttype != EndFunction){
+        if (parseBody(tokens, current, functionStream) == invalid) {
+            cerr << "Error: Issue parsing procedure body" << endl;
+            return false;
+        }
+    }
     cout << functionStream.str();
 
     // from body, get return type and output procedure
@@ -265,7 +263,7 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
 {
     indent++;
 
-    while(tokens[current].ttype != EndFunction){
+    
         functionStream << getIndent();
         switch(tokens[current].ttype){
             case Set:
@@ -278,20 +276,24 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
                 break;
             case Print:
                 current++;
-                printProcedures();
                 if (!parsePrint(tokens, current, functionStream)) { return invalid; }
                 break;
-            case Call:
-                break;
-            // case If:
+            // case Call:
             //     break;
+            case If:
+                current++;
+                if (!parseIf(tokens, current, functionStream)) { 
+                    cerr << "Error: Issue parsing IF statement" << endl;
+                    return invalid; 
+                }
+                break;
             // case ForLoop:
             //     break;
 
             default:
                 return invalid;
         }
-    }
+    
     indent--;
 }
 
@@ -475,3 +477,147 @@ SymbolType parseBinaryExpr(token tokens[], int& current, string& expression)
 
     return combinedType;
 }
+
+bool isComparisonOp(unsigned int ttype) {
+    return ttype == Lt || ttype == Le || ttype == Gt ||
+           ttype == Ge || ttype == Eq || ttype == Ne;
+}
+
+bool parseIf(token tokens[], int& current, ostringstream& functionStream) {
+    
+    functionStream << "if (";
+    
+    // Parse condition
+    if (!parseCondition(tokens, current, functionStream)) {
+        return false;
+    }
+    
+    functionStream << ") {\n";
+    indent++;
+    
+    // Parse body
+    while (tokens[current].ttype != Else && tokens[current].ttype != EndIf) {
+        if (parseBody(tokens, current, functionStream) == invalid) {
+            errorMessage(tokens[current]);
+            cerr << "Error in IF body" << endl;
+            return false;
+        }
+    }
+    
+    indent--;
+    functionStream << getIndent() << "}";
+    
+    // Handle ELSE
+    if ( tokens[current].ttype == Else) {
+        current++;
+        functionStream << " else {\n";
+        indent++;
+        
+        while (  tokens[current].ttype != EndIf) {
+            if (parseBody(tokens, current, functionStream) == invalid) {
+                errorMessage(tokens[current]);
+                cerr << "Error in ELSE body" << endl;
+                return false;
+            }
+        }
+        
+        indent--;
+        functionStream << getIndent() << "}";
+    }
+    
+    // Ensure IF statement closed properly
+    if ( tokens[current].ttype != EndIf) {
+        errorMessage(tokens[current]);
+        cerr << "Expected ENDIF" << endl;
+        return false;
+    }
+    current++;
+    
+    functionStream << "\n";
+    return true;
+}
+
+// Parses condition with the following precedence from highest to lowest: Brackets, NOT, comparison op, AND, OR 
+bool parseCondition(token tokens[], int& current, ostringstream& functionStream) {
+    return parseOrCondition(tokens, current, functionStream);
+}
+
+bool parseOrCondition(token tokens[], int& current, ostringstream& functionStream) {
+    if (!parseAndCondition(tokens, current, functionStream)) {
+        return false;
+    }
+
+    while (tokens[current].ttype == Or) {
+        functionStream << " " << tokens[current].content << " ";
+        current++;
+        if (!parseAndCondition(tokens, current, functionStream)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool parseAndCondition(token tokens[], int& current, ostringstream& functionStream) {
+    if (!parsePrimaryCondition(tokens, current, functionStream)) {
+        return false;
+    }
+
+    while (tokens[current].ttype == And) {
+        functionStream << " " << tokens[current].content << " ";
+        current++;
+        if (!parsePrimaryCondition(tokens, current, functionStream)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool parsePrimaryCondition(token tokens[], int& current, ostringstream& functionStream) {
+    // Handle NOT
+    if (tokens[current].ttype == Not) {
+        functionStream << "!";
+        current++;
+    }
+
+    // Handle parentheses
+    if (tokens[current].ttype == LBrack) {
+        functionStream << "(";
+        current++;
+        if (!parseOrCondition(tokens, current, functionStream)) {
+            return false;
+        }
+        if (tokens[current].ttype != RBrack) {
+            errorMessage(tokens[current]);
+            cerr << "Expected ')'" << endl;
+            return false;
+        }
+        functionStream << ")";
+        current++;
+        return true;
+    }
+
+    // Handle basic comparison
+    string leftExpr, rightExpr;
+    if (parseExpr(tokens, current, leftExpr) == invalid) {
+        cerr << "Error: Issue in left expression" << endl;
+        return false;
+    }
+    functionStream << leftExpr;
+
+    if (!isComparisonOp(tokens[current].ttype)) {
+        errorMessage(tokens[current]);
+        cerr << "Error: Expected comparison operator" << endl;
+        return false;
+    }
+    functionStream << " " << tokens[current].content << " ";
+    current++;
+
+    if (parseExpr(tokens, current, rightExpr) == invalid) {
+        cerr << "Error: Issue in right expression" << endl;
+        return false;
+    }
+    functionStream << rightExpr;
+
+    return true;
+}
+

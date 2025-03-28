@@ -141,7 +141,19 @@ string ttypeTostr(unsigned int ttype)
         case Sub: return "-"; 
         case Mul: return "*"; 
         case Div: return "/";
-        case Rem: return "%"; 
+        case Rem: return "%";
+        case Lt: return "<";
+        case Gt: return ">";
+        case Le: return "<=";
+        case Ge: return ">=";
+        case Ne: return "!=";
+        case Eq: return "==";
+        case And: return "&&";
+        case Or: return "||";
+        case Not: return "!";
+        case If: return "IF";
+        case Else: return "ELSE";
+        case EndIf: return "ENDIF";
         case TextLit: return "textlit";
         case IntLit: return "intlit";
         case RealLit: return "reallit";
@@ -158,7 +170,7 @@ string ttypeTostr(unsigned int ttype)
         case Parameter: return "parameter";
         case EndFunction: return "ENDFUNCTION";
         default: return "Invalid";
-}
+    }
 
 }
 
@@ -168,7 +180,7 @@ void printTokens(token tokens[], int size)
     for (int pos = 0; pos < size; pos++) {
         cout << "Token " << pos << ": " << ttypeTostr(tokens[pos].ttype);
         cout << ", input: " << tokens[pos].content << endl;
-        cout << '\t' << "found on column: " << tokens[pos].column << " and line: " << tokens[pos].line << endl; 
+        //cout << '\t' << "found on column: " << tokens[pos].column << " and line: " << tokens[pos].line << endl; 
     }
     cout << "\n---end of tokens---\n\n";
 }

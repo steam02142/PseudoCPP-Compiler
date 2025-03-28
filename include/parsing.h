@@ -30,3 +30,12 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream);
 bool parseRead(token tokens[], int& current, ostringstream& functionStream);
 
 bool parsePrint(token tokens[], int& current, ostringstream& functionStream);
+
+
+
+
+bool parseIf(token tokens[], int& current, ostringstream& functionStream);
+bool parseCondition(token tokens[], int& current, ostringstream& functionStream);
+bool parseOrCondition(token tokens[], int& current, ostringstream& functionStream);
+bool parseAndCondition(token tokens[], int& current, ostringstream& functionStream);
+bool parsePrimaryCondition(token tokens[], int& current, ostringstream& functionStream);
