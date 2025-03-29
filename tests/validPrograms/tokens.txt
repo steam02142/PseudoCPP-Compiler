@@ -1,26 +1,8 @@
-FUNCTION
-READ 
-PRINT 
-COMPUTE 
-SET
-CALL 
-INCREMENT 
-DECREMENT 
-ADD 
-SUB 
-MUL 
-DIV 
-ENDFUNCTION 
-
-"best thing"
-"new
-line 2
-"last"
-
-READ
-
-55.5
-23
-Test
+SET arr TO [ 1, 2, 3 ]
 
 
+FUNCTION add ( var: int , vartwo: text ) -> int
+   
+    
+ 
+ENDFUNCTION

@@ -70,9 +70,9 @@ string dataTypeToString(token token)
 SymbolType getLiteralType(unsigned int ttype)
 {
     if(ttype == IntLit){ return integer; } 
-    else if (ttype == RealLit) { return real; }
+    else if (ttype == Boolean) { return boolean; }
     else if(ttype == TextLit) { return text; }
-    else { return boolean; }
+    else { return real; }
 }
 
 string typeToString(SymbolType type)
@@ -400,7 +400,32 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
         expression += ")";
         current++;
         return type;
-    } else {
+    } 
+    // This is an array
+    else if(tokens[current].ttype == SquareLBrack) {
+        expression += "{";
+        current++;
+        // use the first value in the array to determine the type
+        type = getLiteralType(tokens[current].ttype);
+        
+        while(tokens[current].ttype != SquareRBrack) {
+            // get value
+            expression += tokens[current].content;
+            // put comma if we aren't on the last token
+            current++;
+            if(tokens[current].ttype != SquareRBrack) {
+                expression += tokens[current].content + " ";
+                current++;
+            }
+            
+        }
+        
+        expression += "}";
+        current++;
+        return type;
+    }
+    
+    else {
         // Reached end of input without bracket
         errorMessage(tokens[current]);
         cerr << "missing closing bracket " << endl;

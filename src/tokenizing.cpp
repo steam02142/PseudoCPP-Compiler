@@ -26,7 +26,22 @@ int tokenize(token tokens[]) {
         else if ((c == ' ' || c == '\t' || c == '\r' || c == '\v' || c == '\f') && !inString) {
             processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
             currentColumn++;
-        } else {
+        }
+        else if (!inString && (c == '[' || c == ']' || c == ',')) 
+        {
+            // handle any tokens that have been built up first
+            if (!currentToken.empty()) {
+                processToken(currentToken, tokens, pos, currentLine, currentColumn - currentToken.length(), invalidTokenDetected);
+                currentToken.clear();
+            }
+             
+            // process the symbol
+            currentToken = c;
+            processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
+            currentColumn++;
+        }
+        
+        else {
             if (c == '"') {
                 if (!inString) {
                     // Start of string
@@ -170,6 +185,8 @@ string ttypeTostr(unsigned int ttype)
         case LBrack: return "(";
         case RBrack: return ")";
         case LRBrack: return  "()";
+        case SquareLBrack: return "[";
+        case SquareRBrack: return "]";
         case Identifier: return "identifier";
         case Parameter: return "parameter";
         case EndFunction: return "ENDFUNCTION";

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-enum SymbolType { invalid = -1, integer = Integer, real = Real, text = Text, boolean = Boolean };
+enum SymbolType { invalid = -1, integer = Integer, real = Real, text = Text, boolean = Boolean, array };
 
 const int MaxEntries = 256;
 const int MaxParams = 16;
