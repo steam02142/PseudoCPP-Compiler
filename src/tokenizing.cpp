@@ -129,6 +129,8 @@ string ttypeTostr(unsigned int ttype)
 {
     switch (ttype) {
         case Function: return "FUNCTION";
+        case Main: return "MAIN";
+        case EndMain: return "ENDMAIN";
         case Read: return "READ";
         case Print: return "PRINT";
         case Compute: return "COMPUTE";
@@ -150,6 +152,7 @@ string ttypeTostr(unsigned int ttype)
         case Eq: return "==";
         case And: return "&&";
         case TypeArrow: return "->";
+        case Return: return "RETURN";
         case Or: return "||";
         case Not: return "!";
         case If: return "IF";

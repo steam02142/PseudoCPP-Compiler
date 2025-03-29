@@ -9,11 +9,11 @@ using namespace std;
 
 bool parse(token tokens[], int numTokens);
 
-bool parseGlobals(token tokens[], int& current);
+bool parseGlobals(token tokens[], int& current, int size);
 
-bool parseGlobalVariable(token tokens[], int& current);
+bool parseGlobalVariable(token tokens[], int& current, int size);
 
-bool parseProcedure(token tokens[], int& current);
+bool parseProcedure(token tokens[], int& current, int size);
 
 bool parseParamList(token tokens[], int& current, string& paramlist);
 

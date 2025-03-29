@@ -23,7 +23,3 @@ FUNCTION badd ( var: int , vartwo: text ) -> int
     ENDIF
 ENDFUNCTION
 
-MAIN 
-    
-    RETURN expr
-ENDMAIN

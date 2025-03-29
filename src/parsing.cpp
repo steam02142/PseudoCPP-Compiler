@@ -21,7 +21,9 @@ bool parse(token tokens[], int numTokens)
 
     initializeScope();
     
-    parseGlobals(tokens, pos);
+    if (!parseGlobals(tokens, pos, numTokens)) {
+        cerr << "Error parsing globals" << endl;
+    }
 
     return true;
 }
@@ -84,18 +86,22 @@ string typeToString(SymbolType type)
     }
 }
 
-bool parseGlobals(token tokens[], int& current)
+bool parseGlobals(token tokens[], int& current, int size)
 {
+    if (current >= size) { 
+        cerr << "Error: Main function not defined" << endl;
+        return false; 
+    }
     if(tokens[current].ttype == Set) {
         current++;
-        if (!parseGlobalVariable(tokens, current)) { 
+        if (!parseGlobalVariable(tokens, current, size)) { 
             cerr << "Error: Issue parsing global variables" << endl;
             return false; 
         }
     } else if(tokens[current].ttype == Function) {
         current++;
         //parse
-        if (!parseProcedure(tokens, current)) { 
+        if (!parseProcedure(tokens, current, size)) { 
             cerr << "Error: Issue parsing procedure declaration" << endl;
             return false; 
         }
@@ -105,7 +111,7 @@ bool parseGlobals(token tokens[], int& current)
 }
 
 
-bool parseGlobalVariable(token tokens[], int& current)
+bool parseGlobalVariable(token tokens[], int& current, int size)
 {
     string identifier;
     string expression;
@@ -149,13 +155,13 @@ bool parseGlobalVariable(token tokens[], int& current)
         insertVariable(identifier, expressionType);
     }
     
-    parseGlobals(tokens, current);
+    parseGlobals(tokens, current, size);
     return true;
 }
 
 // proc looks like
 // FUNCTION funcname ( test: int , var : float)
-bool parseProcedure(token tokens[], int& current)
+bool parseProcedure(token tokens[], int& current, int size)
 {
     string procedureName;
     string procedureType;
@@ -209,7 +215,7 @@ bool parseProcedure(token tokens[], int& current)
     current++;
     OutputProgram << "}" << endl;
 
-    parseGlobals(tokens, current);
+    parseGlobals(tokens, current, size);
 
     return true;
 
