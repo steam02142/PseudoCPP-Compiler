@@ -7,6 +7,7 @@ int tokenize(token tokens[]) {
     char c;
     string currentToken;
     bool inString = false;
+    bool inArray = false;
     bool invalidTokenDetected = false;
 
     cout << "Beginning scanning:\n\n";
@@ -17,6 +18,11 @@ int tokenize(token tokens[]) {
                 cerr << "Error (line " << currentLine << ", col " << currentColumn 
                      << "): Unclosed string\n";
                 inString = false;
+                invalidTokenDetected = true;
+            } else if (inArray) {
+                cerr << "Error (line " << currentLine << ", col " << currentColumn 
+                     << "): Unclosed array\n";
+                inArray = false;
                 invalidTokenDetected = true;
             }
             processToken(currentToken, tokens, pos, currentLine, currentColumn, invalidTokenDetected);
@@ -34,6 +40,9 @@ int tokenize(token tokens[]) {
                 processToken(currentToken, tokens, pos, currentLine, currentColumn - currentToken.length(), invalidTokenDetected);
                 currentToken.clear();
             }
+
+            if(c == '[') { inArray = true; }
+            else if(c== ']') { inArray = false;}
              
             // process the symbol
             currentToken = c;

@@ -1,8 +1,7 @@
 SET arr TO [ 1, 2, 3 ]
 
 
-FUNCTION add ( var: int , vartwo: text ) -> int
-   
-    
+FUNCTION add (  ) -> int
+    SET arr[] TO 1
  
 ENDFUNCTION

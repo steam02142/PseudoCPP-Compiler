@@ -355,6 +355,11 @@ bool parsePrint(token tokens[], int& current)
     return true;
 }
 
+SymbolType parseArray(token tokens[], int& current, string& expression)
+{
+    cout << "parsing array:" << endl;
+}
+
 // returns the type that the expression evaluates to
 SymbolType parseExpr(token tokens[], int& current, string& expression)
 {
@@ -368,10 +373,20 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
             cerr << "variable " << tokens[current].content << " not defined before use" << endl; 
             return invalid; 
         }
-        type = getVariableType(tokens[current].content);
-        //return type
 
+        type = getVariableType(tokens[current].content);
         current++;
+    
+        // OutputProgram << "HERE" << endl;
+        // // handle arrays
+        // if(tokens[current].ttype == SquareLBrack) {
+        //     OutputProgram << "AHHHHHHHH" << endl;
+        //     current++;
+        //     type = parseArray(tokens, current, expression);
+        // } 
+
+
+        
         return type;
     } else if(isLiteral(tokens[current])){
         // check type and return it 
@@ -437,11 +452,26 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
 bool parseVariable(token tokens[], int& current)
 {
     string identifier;
+    string arrayIndex;
     string expression;
     SymbolType expressionType;
     if(tokens[current].ttype == Identifier) {
         identifier = tokens[current].content;
         current++;
+        if(tokens[current].ttype == SquareLBrack) {
+            current++;
+
+            // ensure an index is passed
+            if(tokens[current].ttype == IntLit)
+            {
+                cout << "Made it here good" << endl;
+            } else {
+                errorMessage(tokens[current]);
+                cerr << "array expects index" << endl;
+            }
+
+            parseArray(tokens, current, expression);
+        } 
     } else {
         errorMessage(tokens[current]);
         cerr << "expected identifier, but got " << tokens[current].content << endl;
