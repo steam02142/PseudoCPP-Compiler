@@ -3,7 +3,8 @@
 
 int indent = 0;
 
-ofstream OutputProgram("output.cpp");
+//ofstream OutputProgram("output.cpp");
+ostream& OutputProgram = cout;
 
 // use templates for functinos
 // template <typename T> 
@@ -134,7 +135,7 @@ bool parseGlobalVariable(token tokens[], int& current)
     string type = typeToString(expressionType); 
 
     if(variableExists(identifier)) {
-        cout << identifier << " = " << expression << ";" << endl;
+        OutputProgram << identifier << " = " << expression << ";" << endl;
         
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
@@ -144,7 +145,7 @@ bool parseGlobalVariable(token tokens[], int& current)
         }
         
     } else {
-        cout << type << " " << identifier << " = " << expression << ";" << endl;
+        OutputProgram << type << " " << identifier << " = " << expression << ";" << endl;
         insertVariable(identifier, expressionType);
     }
     
@@ -190,26 +191,25 @@ bool parseProcedure(token tokens[], int& current)
         errorMessage(tokens[current]);
         cerr << " datatype but got: " << tokens[current].content << endl;
         return false;
-    }
+    } 
 
-
-
-
-    ostringstream functionStream;
-    functionStream << procedureType << " " << procedureName << paramlist << " {" << endl;
+    OutputProgram << endl << procedureType << " " << procedureName << paramlist << " {" << endl;
     
 
     // parse body
 
     while(tokens[current].ttype != EndFunction){
-        if (parseBody(tokens, current, functionStream) == invalid) {
+        if (parseBody(tokens, current) == invalid) {
             cerr << "Error: Issue parsing procedure body" << endl;
             return false;
         }
     }
-    cout << functionStream.str();
 
     // from body, get return type and output procedure
+    current++;
+    OutputProgram << "}" << endl;
+
+    parseGlobals(tokens, current);
 
     return true;
 
@@ -280,30 +280,30 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
     return true;
 }
 
-SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream)
+SymbolType parseBody(token tokens[], int& current)
 {
     indent++;
 
     
-        functionStream << getIndent();
+        OutputProgram << getIndent();
         switch(tokens[current].ttype){
             case Set:
                 current++;
-                if (!parseVariable(tokens, current, functionStream)) { return invalid; }
+                if (!parseVariable(tokens, current)) { return invalid; }
                 break;
             case Read:
                 current++;
-                if (!parseRead(tokens, current, functionStream)) { return invalid; }
+                if (!parseRead(tokens, current)) { return invalid; }
                 break;
             case Print:
                 current++;
-                if (!parsePrint(tokens, current, functionStream)) { return invalid; }
+                if (!parsePrint(tokens, current)) { return invalid; }
                 break;
             // case Call:
             //     break;
             case If:
                 current++;
-                if (!parseIf(tokens, current, functionStream)) { 
+                if (!parseIf(tokens, current)) { 
                     cerr << "Error: Issue parsing IF statement" << endl;
                     return invalid; 
                 }
@@ -318,7 +318,7 @@ SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream
     indent--;
 }
 
-bool parseRead(token tokens[], int& current, ostringstream& functionStream)
+bool parseRead(token tokens[], int& current)
 {
     if(tokens[current].ttype == Identifier) {
         if(!variableExists(tokens[current].content)) { 
@@ -326,7 +326,7 @@ bool parseRead(token tokens[], int& current, ostringstream& functionStream)
             cerr << "variable not declared before attempting to read into it " << endl;
             return false; 
         }
-        functionStream << "cin >> " << tokens[current].content << ";" << endl;
+        OutputProgram << "cin >> " << tokens[current].content << ";" << endl;
         current++;
         return true;
     } else {
@@ -336,7 +336,7 @@ bool parseRead(token tokens[], int& current, ostringstream& functionStream)
     }
 }
 
-bool parsePrint(token tokens[], int& current, ostringstream& functionStream)
+bool parsePrint(token tokens[], int& current)
 {
     string expression;
     if(parseExpr(tokens, current, expression) == invalid){
@@ -344,7 +344,7 @@ bool parsePrint(token tokens[], int& current, ostringstream& functionStream)
         return false;
     }
 
-    functionStream << "cout << " << expression << ";" << endl;
+    OutputProgram << "cout << " << expression << ";" << endl;
 
     return true;
 }
@@ -403,7 +403,7 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
     
 }
 
-bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
+bool parseVariable(token tokens[], int& current)
 {
     string identifier;
     string expression;
@@ -434,7 +434,7 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
 
     if(variableExists(identifier)) {
         //cout << identifier << " = " << expression << endl;
-        functionStream << identifier << " = " << expression << ";" << endl;
+        OutputProgram << identifier << " = " << expression << ";" << endl;
 
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
@@ -445,7 +445,7 @@ bool parseVariable(token tokens[], int& current, ostringstream& functionStream)
         
     } else {
         //cout << type << " " << identifier << " = " << expression << endl;
-        functionStream << type << " " << identifier << " = " << expression << ";" << endl;
+        OutputProgram << type << " " << identifier << " = " << expression << ";" << endl;
         insertVariable(identifier, expressionType);
     }
     
@@ -504,21 +504,21 @@ bool isComparisonOp(unsigned int ttype) {
            ttype == Ge || ttype == Eq || ttype == Ne;
 }
 
-bool parseIf(token tokens[], int& current, ostringstream& functionStream) {
+bool parseIf(token tokens[], int& current) {
     
-    functionStream << "if (";
+    OutputProgram << "if (";
     
     // Parse condition
-    if (!parseCondition(tokens, current, functionStream)) {
+    if (!parseCondition(tokens, current)) {
         return false;
     }
     
-    functionStream << ") {\n";
+    OutputProgram << ") {" << endl;
     indent++;
     
     // Parse body
     while (tokens[current].ttype != Else && tokens[current].ttype != EndIf) {
-        if (parseBody(tokens, current, functionStream) == invalid) {
+        if (parseBody(tokens, current) == invalid) {
             errorMessage(tokens[current]);
             cerr << "Error in IF body" << endl;
             return false;
@@ -526,16 +526,16 @@ bool parseIf(token tokens[], int& current, ostringstream& functionStream) {
     }
     
     indent--;
-    functionStream << getIndent() << "}";
+    OutputProgram << getIndent() << "}";
     
     // Handle ELSE
     if ( tokens[current].ttype == Else) {
         current++;
-        functionStream << " else {\n";
+        OutputProgram << " else {" << endl;
         indent++;
         
-        while (  tokens[current].ttype != EndIf) {
-            if (parseBody(tokens, current, functionStream) == invalid) {
+        while (tokens[current].ttype != EndIf) {
+            if (parseBody(tokens, current) == invalid) {
                 errorMessage(tokens[current]);
                 cerr << "Error in ELSE body" << endl;
                 return false;
@@ -543,7 +543,7 @@ bool parseIf(token tokens[], int& current, ostringstream& functionStream) {
         }
         
         indent--;
-        functionStream << getIndent() << "}";
+        OutputProgram << getIndent() << "}";
     }
     
     // Ensure IF statement closed properly
@@ -554,57 +554,57 @@ bool parseIf(token tokens[], int& current, ostringstream& functionStream) {
     }
     current++;
     
-    functionStream << "\n";
+    OutputProgram << endl;
     return true;
 }
 
 // Parses condition with the following precedence from highest to lowest: Brackets, NOT, comparison op, AND, OR 
-bool parseCondition(token tokens[], int& current, ostringstream& functionStream) {
-    return parseOrCondition(tokens, current, functionStream);
+bool parseCondition(token tokens[], int& current) {
+    return parseOrCondition(tokens, current);
 }
 
-bool parseOrCondition(token tokens[], int& current, ostringstream& functionStream) {
-    if (!parseAndCondition(tokens, current, functionStream)) {
+bool parseOrCondition(token tokens[], int& current) {
+    if (!parseAndCondition(tokens, current)) {
         return false;
     }
 
     while (tokens[current].ttype == Or) {
-        functionStream << " " << tokens[current].content << " ";
+        OutputProgram << " " << tokens[current].content << " ";
         current++;
-        if (!parseAndCondition(tokens, current, functionStream)) {
+        if (!parseAndCondition(tokens, current)) {
             return false;
         }
     }
     return true;
 }
 
-bool parseAndCondition(token tokens[], int& current, ostringstream& functionStream) {
-    if (!parsePrimaryCondition(tokens, current, functionStream)) {
+bool parseAndCondition(token tokens[], int& current) {
+    if (!parsePrimaryCondition(tokens, current)) {
         return false;
     }
 
     while (tokens[current].ttype == And) {
-        functionStream << " " << tokens[current].content << " ";
+        OutputProgram << " " << tokens[current].content << " ";
         current++;
-        if (!parsePrimaryCondition(tokens, current, functionStream)) {
+        if (!parsePrimaryCondition(tokens, current)) {
             return false;
         }
     }
     return true;
 }
 
-bool parsePrimaryCondition(token tokens[], int& current, ostringstream& functionStream) {
+bool parsePrimaryCondition(token tokens[], int& current) {
     // Handle NOT
     if (tokens[current].ttype == Not) {
-        functionStream << "!";
+        OutputProgram << "!";
         current++;
     }
 
     // Handle parentheses
     if (tokens[current].ttype == LBrack) {
-        functionStream << "(";
+        OutputProgram << "(";
         current++;
-        if (!parseOrCondition(tokens, current, functionStream)) {
+        if (!parseOrCondition(tokens, current)) {
             return false;
         }
         if (tokens[current].ttype != RBrack) {
@@ -612,7 +612,7 @@ bool parsePrimaryCondition(token tokens[], int& current, ostringstream& function
             cerr << "Expected ')'" << endl;
             return false;
         }
-        functionStream << ")";
+        OutputProgram << ")";
         current++;
         return true;
     }
@@ -623,21 +623,21 @@ bool parsePrimaryCondition(token tokens[], int& current, ostringstream& function
         cerr << "Error: Issue in left expression" << endl;
         return false;
     }
-    functionStream << leftExpr;
+    OutputProgram << leftExpr;
 
     if (!isComparisonOp(tokens[current].ttype)) {
         errorMessage(tokens[current]);
         cerr << "Error: Expected comparison operator" << endl;
         return false;
     }
-    functionStream << " " << tokens[current].content << " ";
+    OutputProgram << " " << tokens[current].content << " ";
     current++;
 
     if (parseExpr(tokens, current, rightExpr) == invalid) {
         cerr << "Error: Issue in right expression" << endl;
         return false;
     }
-    functionStream << rightExpr;
+    OutputProgram << rightExpr;
 
     return true;
 }

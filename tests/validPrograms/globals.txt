@@ -10,6 +10,20 @@ FUNCTION add ( var: int , vartwo: text ) -> int
     IF  1 > 2 && ( 2 < 10 || 4 == 0 )
         SET newvar TO 11
     ENDIF
-
-    
+ 
 ENDFUNCTION
+
+FUNCTION badd ( var: int , vartwo: text ) -> int
+    SET newvar TO 10
+    READ newvar
+    PRINT ( newvar + var )
+
+    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
+        SET newvar TO 11
+    ENDIF
+ENDFUNCTION
+
+MAIN 
+    
+    RETURN expr
+ENDMAIN

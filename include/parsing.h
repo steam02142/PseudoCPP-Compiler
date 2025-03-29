@@ -23,19 +23,19 @@ SymbolType parseBinaryExpr(token tokens[], int& current, string& expression);
 
 SymbolType calculateType(SymbolType type1, SymbolType type2);
 
-SymbolType parseBody(token tokens[], int& current, ostringstream& functionStream);
+SymbolType parseBody(token tokens[], int& current);
 
-bool parseVariable(token tokens[], int& current, ostringstream& functionStream);
+bool parseVariable(token tokens[], int& current);
 
-bool parseRead(token tokens[], int& current, ostringstream& functionStream);
+bool parseRead(token tokens[], int& current);
 
-bool parsePrint(token tokens[], int& current, ostringstream& functionStream);
-
-
+bool parsePrint(token tokens[], int& current);
 
 
-bool parseIf(token tokens[], int& current, ostringstream& functionStream);
-bool parseCondition(token tokens[], int& current, ostringstream& functionStream);
-bool parseOrCondition(token tokens[], int& current, ostringstream& functionStream);
-bool parseAndCondition(token tokens[], int& current, ostringstream& functionStream);
-bool parsePrimaryCondition(token tokens[], int& current, ostringstream& functionStream);
+
+
+bool parseIf(token tokens[], int& current);
+bool parseCondition(token tokens[], int& current);
+bool parseOrCondition(token tokens[], int& current);
+bool parseAndCondition(token tokens[], int& current);
+bool parsePrimaryCondition(token tokens[], int& current);
