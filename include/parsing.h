@@ -31,6 +31,8 @@ bool parseRead(token tokens[], int& current);
 
 bool parsePrint(token tokens[], int& current);
 
+bool parseReturn(token tokens[], int& current);
+
 
 
 

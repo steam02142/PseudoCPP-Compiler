@@ -214,6 +214,7 @@ bool parseProcedure(token tokens[], int& current, int size)
     // from body, get return type and output procedure
     current++;
     OutputProgram << "}" << endl;
+    if(!popScope()) { return false; }
 
     parseGlobals(tokens, current, size);
 
@@ -316,6 +317,13 @@ SymbolType parseBody(token tokens[], int& current)
                 break;
             // case ForLoop:
             //     break;
+            case Return:
+                current++;
+                if(!parseReturn(tokens, current)) { 
+                    cerr << "Error: Issue parsing RETURN statement" << endl;
+                    return invalid; 
+                }
+                break;
 
             default:
                 return invalid;
@@ -355,9 +363,41 @@ bool parsePrint(token tokens[], int& current)
     return true;
 }
 
-SymbolType parseArray(token tokens[], int& current, string& expression)
+bool parseReturn(token tokens[], int& current)
 {
-    cout << "parsing array:" << endl;
+    string expression;
+    if(parseExpr(tokens, current, expression) == invalid){
+        cerr << "Error: Error parsing print" << endl;
+        return false;
+    }
+
+    OutputProgram << "return " << expression << ";" << endl;
+
+    return true;
+}
+
+bool parseArray(token tokens[], int& current, string& arrayIndex)
+{
+    // ensure an index is passed
+    if(tokens[current].ttype == IntLit){
+        // Check it is within bounds at some point -----------------------------------------------------------------------------------------
+        arrayIndex += "[" + tokens[current].content + "]";
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "array expects index" << endl;
+        return false;
+    }
+
+    // check closing bracket present
+    if(tokens[current].ttype == SquareRBrack) {
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "array expects closing bracket" << endl;
+        return false;
+    }
+    return true;
 }
 
 // returns the type that the expression evaluates to
@@ -377,13 +417,12 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
         type = getVariableType(tokens[current].content);
         current++;
     
-        // OutputProgram << "HERE" << endl;
-        // // handle arrays
-        // if(tokens[current].ttype == SquareLBrack) {
-        //     OutputProgram << "AHHHHHHHH" << endl;
-        //     current++;
-        //     type = parseArray(tokens, current, expression);
-        // } 
+
+        // handle arrays
+        if(tokens[current].ttype == SquareLBrack) {
+            current++;
+            if (!parseArray(tokens, current, expression)) { return invalid; }
+        } 
 
 
         
@@ -455,22 +494,14 @@ bool parseVariable(token tokens[], int& current)
     string arrayIndex;
     string expression;
     SymbolType expressionType;
+    bool isArray = false;
     if(tokens[current].ttype == Identifier) {
         identifier = tokens[current].content;
         current++;
         if(tokens[current].ttype == SquareLBrack) {
             current++;
-
-            // ensure an index is passed
-            if(tokens[current].ttype == IntLit)
-            {
-                cout << "Made it here good" << endl;
-            } else {
-                errorMessage(tokens[current]);
-                cerr << "array expects index" << endl;
-            }
-
-            parseArray(tokens, current, expression);
+            if (!parseArray(tokens, current, arrayIndex)) { return false; }
+            isArray = true;
         } 
     } else {
         errorMessage(tokens[current]);
@@ -486,6 +517,9 @@ bool parseVariable(token tokens[], int& current)
         return false;
     }
 
+    // Check if we are defining an array before processing it and getting the type
+    if(tokens[current].ttype == SquareLBrack) { isArray = true; }
+
     expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid) {
         cerr << "Error occured while parsing expression" << endl;
@@ -495,7 +529,12 @@ bool parseVariable(token tokens[], int& current)
 
     if(variableExists(identifier)) {
         //cout << identifier << " = " << expression << endl;
-        OutputProgram << identifier << " = " << expression << ";" << endl;
+        if(isArray) {
+            OutputProgram << identifier << arrayIndex << " = " << expression << ";" << endl;
+        } else {
+            OutputProgram << identifier << " = " << expression << ";" << endl;
+        }
+        
 
         SymbolType varType = getVariableType(identifier);
         if(calculateType(varType, expressionType) == invalid) {
@@ -506,7 +545,13 @@ bool parseVariable(token tokens[], int& current)
         
     } else {
         //cout << type << " " << identifier << " = " << expression << endl;
-        OutputProgram << type << " " << identifier << " = " << expression << ";" << endl;
+
+        if(isArray) {
+            OutputProgram << "vector<" << type << "> " << identifier << " = " << expression << ";" << endl;
+        } else {
+            OutputProgram << type << " " << identifier << " = " << expression << ";" << endl;
+        }
+
         insertVariable(identifier, expressionType);
     }
     
@@ -575,6 +620,8 @@ bool parseIf(token tokens[], int& current) {
     }
     
     OutputProgram << ") {" << endl;
+    // Entering if statemetn scope
+    if(!pushScope()) { return false; }
     indent++;
     
     // Parse body
@@ -587,6 +634,8 @@ bool parseIf(token tokens[], int& current) {
     }
     
     indent--;
+    // exiting if statement scope
+    if(!popScope()) { return false; }
     OutputProgram << getIndent() << "}";
     
     // Handle ELSE
@@ -594,6 +643,8 @@ bool parseIf(token tokens[], int& current) {
         current++;
         OutputProgram << " else {" << endl;
         indent++;
+        // Entering else statemetn scope
+        if(!pushScope()) { return false; }
         
         while (tokens[current].ttype != EndIf) {
             if (parseBody(tokens, current) == invalid) {
@@ -604,6 +655,8 @@ bool parseIf(token tokens[], int& current) {
         }
         
         indent--;
+        // exiting else statement scope
+        if(!popScope()) { return false; }
         OutputProgram << getIndent() << "}";
     }
     

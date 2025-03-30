@@ -1,7 +1,20 @@
-SET arr TO [ 1, 2, 3 ]
+
 
 
 FUNCTION add (  ) -> int
-    SET arr[] TO 1
+    SET arr TO [ 1, 2, 3 ]
+    SET arrtwo TO [ "yes" ]
+    SET arr[1] TO 1
+
+    SET newvar TO 11
+
+    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
+        SET newvar TO 11
+    ENDIF
+
+    SET newvar TO 12
+
+    RETURN newvar
+
  
 ENDFUNCTION
