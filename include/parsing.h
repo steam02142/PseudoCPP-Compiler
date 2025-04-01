@@ -11,6 +11,8 @@ bool parse(token tokens[], int numTokens);
 
 bool parseGlobals(token tokens[], int& current, int size);
 
+bool parseMain(token tokens[], int& current);
+
 bool parseGlobalVariable(token tokens[], int& current, int size);
 
 bool parseProcedure(token tokens[], int& current, int size);

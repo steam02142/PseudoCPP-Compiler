@@ -20,10 +20,20 @@ bool parse(token tokens[], int numTokens)
     int pos = 0;
 
     initializeScope();
-    
+
+    OutputProgram << "#include <vector>" << endl
+                << "#include <string>" << endl
+                << "#include <iostream>" << endl << endl
+                << "using namespace std;" << endl;
+
     if (!parseGlobals(tokens, pos, numTokens)) {
         cerr << "Error parsing globals" << endl;
     }
+
+    if (!parseMain(tokens, pos)) {
+        cerr << "Error parsing main" << endl;
+    }
+
 
     return true;
 }
@@ -159,6 +169,34 @@ bool parseGlobalVariable(token tokens[], int& current, int size)
     return true;
 }
 
+bool parseMain(token tokens[], int& current)
+{
+    if(tokens[current].ttype == Main) {
+        OutputProgram << "int main() {" << endl;
+        if(!pushScope()) { return false; }
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << " expected main function, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    // parse body
+    SymbolType returnType = invalid;
+    while(tokens[current].ttype != EndMain){
+        if (!parseBody(tokens, current, returnType)) {
+            cerr << "Error: Issue parsing procedure body" << endl;
+            return false;
+        }
+    }
+
+    OutputProgram << "}" << endl;
+    if(!popScope()) { return false; }
+    current++;
+
+    return true;
+}
+
 // proc looks like
 // FUNCTION funcname ( test: int , var : float)
 bool parseProcedure(token tokens[], int& current, int size)
@@ -220,7 +258,7 @@ bool parseProcedure(token tokens[], int& current, int size)
 
     // from body, get return type and output procedure
     current++;
-    OutputProgram << "}" << endl;
+    OutputProgram << "}" << endl << endl;
     if(!popScope()) { return false; }
 
     parseGlobals(tokens, current, size);
