@@ -4,7 +4,8 @@
 FUNCTION add ( test: int, best: real[] ) -> int
     SET arr TO [ 1, 2, 3 ]
     SET arrtwo TO [ "yes" ]
-    SET arr[1] TO 1
+    SET index TO 1
+    SET arr[index] TO 1
 
     SET newvar TO 11
 
@@ -13,7 +14,7 @@ FUNCTION add ( test: int, best: real[] ) -> int
     ENDIF
 
     FOR i FROM 1 TO 10
-        SET arr[i] TO i * 2
+        
     ENDFOR
 
     RETURN "a"

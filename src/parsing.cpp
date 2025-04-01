@@ -344,8 +344,13 @@ bool parseBody(token tokens[], int& current, SymbolType& returnType)
                     return false; 
                 }
                 break;
-            // case ForLoop:
-            //     break;
+            case ForLoop:
+                current++;
+                if (!parseForLoop(tokens, current)) { 
+                    cerr << "Error: Issue parsing IF statement" << endl;
+                    return false; 
+                }
+                break;
             case Return:
                 current++;
                 returnType = parseReturn(tokens, current);
@@ -398,6 +403,62 @@ bool parsePrint(token tokens[], int& current)
     return true;
 }
 
+bool parseForLoop(token tokens[], int& current)
+{
+    string identifier;
+    pushScope();
+    // already parsed 'FOR'
+    if(tokens[current].ttype == Identifier) {
+        identifier = tokens[current].content;
+        current++;
+         
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "expected identifier, but got " << tokens[current].content << endl;
+        return false;
+    }
+
+    if(tokens[current].ttype == From) {
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "expected 'TO', but got " << tokens[current].content << endl; 
+        return false;
+    }  
+
+    // number/var
+    string expression;
+    if(parseExpr(tokens, current, expression) == invalid){
+        cerr << "Error: Error parsing for loop" << endl;
+        return false;
+    }
+
+    //TO
+    if(tokens[current].ttype == To) {
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "expected 'TO', but got " << tokens[current].content << endl; 
+        return false;
+    }  
+
+    // number/var
+    if(parseExpr(tokens, current, expression) == invalid){
+        cerr << "Error: Error parsing for loop" << endl;
+        return false;
+    }
+
+    indent++;
+    // while not EndForLoop -> body
+
+    // close loop
+    popScope();
+    indent--;
+    
+
+    return true;
+}
+
 SymbolType parseReturn(token tokens[], int& current)
 {
     string expression;
@@ -419,7 +480,23 @@ bool parseArray(token tokens[], int& current, string& arrayIndex)
         // Check it is within bounds at some point -----------------------------------------------------------------------------------------
         arrayIndex += "[" + tokens[current].content + "]";
         current++;
-    } else {
+    } else if (tokens[current].ttype == Identifier) {
+        if(!variableExists(tokens[current].content)) { 
+            errorMessage(tokens[current]);
+            cerr << "variable " << tokens[current].content << " not defined before use as array index" << endl; 
+            return false; 
+        }
+
+        if(getVariableType(tokens[current].content) != integer){
+            errorMessage(tokens[current]);
+            cerr << "variable " << tokens[current].content << " is being used as an index but is not an integer" << endl; 
+            return false; 
+        }
+
+        arrayIndex += "[" + tokens[current].content + "]";
+        current++;
+    }
+    else {
         errorMessage(tokens[current]);
         cerr << "array expects index" << endl;
         return false;

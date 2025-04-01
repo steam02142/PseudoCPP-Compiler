@@ -37,12 +37,6 @@ int tokenize(token tokens[]) {
         {
             // handle any tokens that have been built up first
             if (!currentToken.empty()) {
-                // // check if this is an array type
-                // if(currentToken == ttypeTostr(Integer) || currentToken == ttypeTostr(Real) || 
-                //     currentToken == ttypeTostr(Boolean) || currentToken == ttypeTostr(Text))
-                // {
-                //     cout << "PARAM ARR" << endl;
-                // }
                 processToken(currentToken, tokens, pos, currentLine, currentColumn - currentToken.length(), invalidTokenDetected);
                 currentToken.clear();
             }
@@ -188,6 +182,9 @@ string ttypeTostr(unsigned int ttype)
         case If: return "IF";
         case Else: return "ELSE";
         case EndIf: return "ENDIF";
+        case ForLoop: return "FOR";
+        case EndForLoop: return "ENDFOR";
+        case From: return "FROM";
         case TextLit: return "textlit";
         case IntLit: return "intlit";
         case RealLit: return "reallit";
