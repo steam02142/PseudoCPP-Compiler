@@ -14,7 +14,7 @@ FUNCTION add (  ) -> int
 
     SET newvar TO 12
 
-    RETURN newvar
+    RETURN "A"
 
  
 ENDFUNCTION

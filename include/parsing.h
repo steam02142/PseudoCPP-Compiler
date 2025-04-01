@@ -23,7 +23,7 @@ SymbolType parseBinaryExpr(token tokens[], int& current, string& expression);
 
 SymbolType calculateType(SymbolType type1, SymbolType type2);
 
-SymbolType parseBody(token tokens[], int& current);
+bool parseBody(token tokens[], int& current, SymbolType& returnType);
 
 bool parseVariable(token tokens[], int& current);
 
@@ -31,7 +31,7 @@ bool parseRead(token tokens[], int& current);
 
 bool parsePrint(token tokens[], int& current);
 
-bool parseReturn(token tokens[], int& current);
+SymbolType parseReturn(token tokens[], int& current);
 
 
 

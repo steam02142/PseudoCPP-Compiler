@@ -203,13 +203,20 @@ bool parseProcedure(token tokens[], int& current, int size)
     
 
     // parse body
-
+    SymbolType returnType = invalid;
     while(tokens[current].ttype != EndFunction){
-        if (parseBody(tokens, current) == invalid) {
+        if (!parseBody(tokens, current, returnType)) {
             cerr << "Error: Issue parsing procedure body" << endl;
             return false;
         }
     }
+
+    if (procedureType != typeToString(returnType)) {
+        errorMessage(tokens[current]);
+        cerr << "Return type doesn't match procedure return type" << endl;
+        return false;
+    }
+    
 
     // from body, get return type and output procedure
     current++;
@@ -287,24 +294,24 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
     return true;
 }
 
-SymbolType parseBody(token tokens[], int& current)
+bool parseBody(token tokens[], int& current, SymbolType& returnType)
 {
     indent++;
 
-    
+
         OutputProgram << getIndent();
         switch(tokens[current].ttype){
             case Set:
                 current++;
-                if (!parseVariable(tokens, current)) { return invalid; }
+                if (!parseVariable(tokens, current)) { return false; }
                 break;
             case Read:
                 current++;
-                if (!parseRead(tokens, current)) { return invalid; }
+                if (!parseRead(tokens, current)) { return false; }
                 break;
             case Print:
                 current++;
-                if (!parsePrint(tokens, current)) { return invalid; }
+                if (!parsePrint(tokens, current)) { return false; }
                 break;
             // case Call:
             //     break;
@@ -312,24 +319,27 @@ SymbolType parseBody(token tokens[], int& current)
                 current++;
                 if (!parseIf(tokens, current)) { 
                     cerr << "Error: Issue parsing IF statement" << endl;
-                    return invalid; 
+                    return false; 
                 }
                 break;
             // case ForLoop:
             //     break;
             case Return:
                 current++;
-                if(!parseReturn(tokens, current)) { 
+                returnType = parseReturn(tokens, current);
+                if(returnType == invalid) { 
                     cerr << "Error: Issue parsing RETURN statement" << endl;
-                    return invalid; 
+                    return false; 
                 }
                 break;
 
             default:
-                return invalid;
+                return false;
         }
     
     indent--;
+
+    return true;
 }
 
 bool parseRead(token tokens[], int& current)
@@ -363,17 +373,18 @@ bool parsePrint(token tokens[], int& current)
     return true;
 }
 
-bool parseReturn(token tokens[], int& current)
+SymbolType parseReturn(token tokens[], int& current)
 {
     string expression;
-    if(parseExpr(tokens, current, expression) == invalid){
+    SymbolType expressionType = parseExpr(tokens, current, expression);
+    if(expressionType == invalid){
         cerr << "Error: Error parsing print" << endl;
-        return false;
+        return invalid;
     }
 
     OutputProgram << "return " << expression << ";" << endl;
 
-    return true;
+    return expressionType;
 }
 
 bool parseArray(token tokens[], int& current, string& arrayIndex)
@@ -625,8 +636,9 @@ bool parseIf(token tokens[], int& current) {
     indent++;
     
     // Parse body
+    SymbolType dummyReturn; // just used for function call
     while (tokens[current].ttype != Else && tokens[current].ttype != EndIf) {
-        if (parseBody(tokens, current) == invalid) {
+        if (!parseBody(tokens, current, dummyReturn)) {
             errorMessage(tokens[current]);
             cerr << "Error in IF body" << endl;
             return false;
@@ -647,7 +659,7 @@ bool parseIf(token tokens[], int& current) {
         if(!pushScope()) { return false; }
         
         while (tokens[current].ttype != EndIf) {
-            if (parseBody(tokens, current) == invalid) {
+            if (!parseBody(tokens, current, dummyReturn)) {
                 errorMessage(tokens[current]);
                 cerr << "Error in ELSE body" << endl;
                 return false;
