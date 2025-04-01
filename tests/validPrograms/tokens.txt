@@ -5,19 +5,21 @@ FUNCTION add ( test: int, best: real[] ) -> int
     SET arr TO [ 1, 2, 3 ]
     SET arrtwo TO [ "yes" ]
     SET index TO 1
-    SET arr[index] TO 1
+    
 
-    SET newvar TO 11
+    SET newvar TO 11    
 
     IF  1 > 2 && ( 2 < 10 || 4 == 0 )
         SET newvar TO 11
     ENDIF
 
+    SET newvar TO 11    
+
     FOR i FROM 1 TO 10
-        
+        SET arr[i] TO 1
     ENDFOR
 
-    RETURN "a"
+    RETURN index
 
  
 ENDFUNCTION

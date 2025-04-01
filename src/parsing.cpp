@@ -407,9 +407,20 @@ bool parseForLoop(token tokens[], int& current)
 {
     string identifier;
     pushScope();
+    OutputProgram << "for (";
     // already parsed 'FOR'
     if(tokens[current].ttype == Identifier) {
         identifier = tokens[current].content;
+        if(variableExists(identifier)) {
+            errorMessage(tokens[current]);
+            cerr << "cannot reuse variables in for loop, already defined: " << tokens[current].content << endl;
+            return false;
+        }
+
+        insertVariable(identifier, tokenTypeToSymbolType(Integer));
+
+        OutputProgram << "int " << identifier << " = "; 
+        
         current++;
          
     } else {
@@ -422,16 +433,18 @@ bool parseForLoop(token tokens[], int& current)
         current++;
     } else {
         errorMessage(tokens[current]);
-        cerr << "expected 'TO', but got " << tokens[current].content << endl; 
+        cerr << "expected 'FROM', but got " << tokens[current].content << endl; 
         return false;
     }  
 
     // number/var
     string expression;
-    if(parseExpr(tokens, current, expression) == invalid){
-        cerr << "Error: Error parsing for loop" << endl;
+    SymbolType expressionType = parseExpr(tokens, current, expression);
+    if(expressionType != integer){
+        cerr << "Error: Error parsing for loop, requires integer initialization" << endl;
         return false;
-    }
+    } 
+    OutputProgram << expression << "; ";
 
     //TO
     if(tokens[current].ttype == To) {
@@ -443,17 +456,33 @@ bool parseForLoop(token tokens[], int& current)
     }  
 
     // number/var
-    if(parseExpr(tokens, current, expression) == invalid){
-        cerr << "Error: Error parsing for loop" << endl;
+    expression = "";
+    expressionType = parseExpr(tokens, current, expression);
+    if(expressionType != integer){
+        cerr << "Error: Error parsing for loop, requires integer bound" << endl;
         return false;
-    }
+    } 
+    OutputProgram << identifier << " <= " << expression << "; " << identifier << "++) {" << endl;
 
     indent++;
     // while not EndForLoop -> body
+    SymbolType returnType = invalid;
+    while(tokens[current].ttype != EndForLoop){
+        if (!parseBody(tokens, current, returnType)) {
+            cerr << "Error: Issue parsing for loop body" << endl;
+            return false;
+        }
+    }
+
+    current++;
 
     // close loop
     popScope();
     indent--;
+
+    OutputProgram << getIndent() << "}" << endl << endl; 
+       
+    
     
 
     return true;
@@ -735,6 +764,7 @@ bool parseIf(token tokens[], int& current) {
     OutputProgram << ") {" << endl;
     // Entering if statemetn scope
     if(!pushScope()) { return false; }
+    
     indent++;
     
     // Parse body
@@ -750,6 +780,7 @@ bool parseIf(token tokens[], int& current) {
     indent--;
     // exiting if statement scope
     if(!popScope()) { return false; }
+    
     OutputProgram << getIndent() << "}";
     
     // Handle ELSE
