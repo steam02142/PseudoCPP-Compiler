@@ -16,12 +16,14 @@ struct VariableEntry {
     string name;
     SymbolType type;
     int scope;
+    bool isArray;
 };
 
 // ---- Procedure table setup ---- 
 struct ProcParam {
     string name;
     SymbolType type;
+    bool isArray;
 };
 
 struct ProcedureEntry {
@@ -40,7 +42,7 @@ bool popScope();
 
 void printActiveScopes();
 
-bool insertVariable(string name, SymbolType type);
+bool insertVariable(string name, SymbolType type, bool isArray = false);
 
 void printVariables();
 
@@ -53,7 +55,7 @@ SymbolType getVariableType(string name);
 // procedures
 bool insertProcedure(string name);
 
-bool insertProcedureParam(string name, SymbolType type);
+bool insertProcedureParam(string name, SymbolType type, bool isArray = false);
 
 bool procedureExists(string name);
 

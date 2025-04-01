@@ -258,12 +258,34 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
         }
 
         if(isDataType(tokens[current])) {
-            paramlist += dataTypeToString(tokens[current]) + " " + paramName; 
-            // add as procedure param for type checking during call later
-            insertProcedureParam(paramName, tokenTypeToSymbolType(tokens[current].ttype));
-            // add as variable so we can check it exists before use
-            insertVariable(paramName, tokenTypeToSymbolType(tokens[current].ttype));
+            token dataTypeToken = tokens[current];
             current++;
+            // this is an array 
+            if(tokens[current].ttype == SquareLBrack) {
+                current++;
+                if(tokens[current].ttype != SquareRBrack) {
+                    errorMessage(tokens[current]); 
+                    cerr << "expected closing bracket for array parameter" << endl;
+                    return false;
+                }
+                current++;
+
+                paramlist += "vector<" + dataTypeToString(dataTypeToken) + "> " + paramName; 
+                // add as procedure param for type checking during call later
+                insertProcedureParam(paramName, tokenTypeToSymbolType(dataTypeToken.ttype), true);
+                // add as variable so we can check it exists before use
+                insertVariable(paramName, tokenTypeToSymbolType(dataTypeToken.ttype), true);
+                
+
+            }
+            else {
+                paramlist += dataTypeToString(dataTypeToken) + " " + paramName; 
+                // add as procedure param for type checking during call later
+                insertProcedureParam(paramName, tokenTypeToSymbolType(dataTypeToken.ttype));
+                // add as variable so we can check it exists before use
+                insertVariable(paramName, tokenTypeToSymbolType(dataTypeToken.ttype));
+                
+            }
         } else {
             errorMessage(tokens[current]); 
             cerr << "expected data type, but got " << tokens[current].content << endl;
@@ -334,6 +356,9 @@ bool parseBody(token tokens[], int& current, SymbolType& returnType)
                 break;
 
             default:
+                errorMessage(tokens[current]);
+                cerr << "Unexpected token: " << tokens[current].content 
+                     << ". This token is not valid in this context." << endl;;
                 return false;
         }
     

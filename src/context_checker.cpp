@@ -57,7 +57,7 @@ void printActiveScopes()
 }
 
 // ---- Variable Stack Functions ----
-bool insertVariable(string name, SymbolType type)
+bool insertVariable(string name, SymbolType type, bool isArray)
 {
     if(variableInScope(name, currentScope)) { 
         cerr << "Error: variable redeclaration" << endl;
@@ -67,6 +67,8 @@ bool insertVariable(string name, SymbolType type)
     VariableTable[numVariables].name = name;
     VariableTable[numVariables].type = type;
     VariableTable[numVariables].scope = currentScope;
+    VariableTable[numVariables].isArray = isArray;
+
 
     numVariables++;
     return true;
@@ -147,7 +149,7 @@ bool procedureExists(string name)
     return false;
 }
 
-bool insertProcedureParam(string name, SymbolType type)
+bool insertProcedureParam(string name, SymbolType type, bool isArray)
 {
     int currentProc = numProcedures - 1;
     if(ProcedureTable[currentProc].numParams >= MaxParams){
@@ -166,6 +168,7 @@ bool insertProcedureParam(string name, SymbolType type)
 
     ProcedureTable[currentProc].parameters[newParam].name = name;
     ProcedureTable[currentProc].parameters[newParam].type = type;
+    ProcedureTable[currentProc].parameters[newParam].isArray = isArray;
     ProcedureTable[currentProc].numParams++;
 
     return true;
