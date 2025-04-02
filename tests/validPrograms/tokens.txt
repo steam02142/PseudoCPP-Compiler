@@ -24,6 +24,12 @@ ENDFUNCTION
 
 
 MAIN
-    SET test TO 3
+    SET intval TO 3
+    SET realval TO [ 2.2, 5.5 ]
+
+    CALL add WITH intval, realval   
+
+    SET intval TO 3
+
 
 ENDMAIN

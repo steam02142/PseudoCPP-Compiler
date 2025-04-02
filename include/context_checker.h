@@ -59,4 +59,6 @@ bool insertProcedureParam(string name, SymbolType type, bool isArray = false);
 
 bool procedureExists(string name);
 
+SymbolType getProcedureParamType(string procedureName, int paramPosition);
+
 void printProcedures();

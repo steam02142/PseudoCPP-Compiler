@@ -151,6 +151,22 @@ bool procedureExists(string name)
     return false;
 }
 
+SymbolType getProcedureParamType(string procedureName, int paramPosition)
+{
+    for(int i = 0; i < numProcedures; i++){
+        if(ProcedureTable[i].name == procedureName) {
+            if(ProcedureTable[i].numParams > paramPosition) {
+                return ProcedureTable[i].parameters[paramPosition].type;
+            } else {
+                cerr << "Error: out of bounds" << endl;
+                return invalid;
+            }
+        }
+    }
+    cout << "NO MATCH" << endl;
+    return invalid;
+}
+
 bool insertProcedureParam(string name, SymbolType type, bool isArray)
 {
     int currentProc = numProcedures - 1;

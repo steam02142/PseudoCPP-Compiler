@@ -37,6 +37,7 @@ SymbolType parseReturn(token tokens[], int& current);
 
 bool parseForLoop(token tokens[], int& current);
 
+bool parseCall(token tokens[], int& current);
 
 
 

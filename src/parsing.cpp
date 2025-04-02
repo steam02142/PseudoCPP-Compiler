@@ -40,6 +40,7 @@ bool parse(token tokens[], int numTokens)
 
 void errorMessage(token tokens)
 {
+    cerr << endl << "-----------------------------" << endl;
     cerr << "Error (line " << tokens.line << ", col " << tokens.column << "): ";
 }
 
@@ -373,8 +374,10 @@ bool parseBody(token tokens[], int& current, SymbolType& returnType)
                 current++;
                 if (!parsePrint(tokens, current)) { return false; }
                 break;
-            // case Call:
-            //     break;
+            case Call:
+                current++;
+                if (!parseCall(tokens, current)) { return false; }
+                break;
             case If:
                 current++;
                 if (!parseIf(tokens, current)) { 
@@ -438,6 +441,54 @@ bool parsePrint(token tokens[], int& current)
 
     OutputProgram << "cout << " << expression << ";" << endl;
 
+    return true;
+}
+
+bool parseCall(token tokens[], int& current)
+{
+    string procedureName = tokens[current].content;
+    // check it is a valid procedure
+    if(!procedureExists(tokens[current].content)) {
+        errorMessage(tokens[current]);
+        cerr << "procedure not defined before call" << endl;
+        return false;
+    }
+    OutputProgram << procedureName << "(";
+    current++;
+
+    if(tokens[current].ttype == With) {
+        current++;
+    } else {
+        errorMessage(tokens[current]);
+        cerr << "expected 'WITH', but got " << tokens[current].content << endl; 
+        return false;
+    } 
+    
+    int index = 0; 
+    // parse the passed parameters
+    while(tokens[current].ttype == Identifier) 
+    {
+        //cout << "Deal with call later" << endl;
+        string expression;
+        SymbolType expressionType = parseExpr(tokens, current, expression);
+        SymbolType procedureParamType = getProcedureParamType(procedureName, index);
+
+        if(expressionType != procedureParamType) {
+            cerr << "Error: Type mismatch in procedure call" << endl;
+            return false;
+        }
+
+        OutputProgram << typeToString(expressionType) << " " << expression;
+        
+        index++;
+        // Move to next identifer if there are multiple
+        if(tokens[current].ttype == Comma) { 
+            OutputProgram << ", ";
+            current++; 
+        }
+    }    
+
+    OutputProgram << ");" << endl;
     return true;
 }
 

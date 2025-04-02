@@ -185,6 +185,7 @@ string ttypeTostr(unsigned int ttype)
         case ForLoop: return "FOR";
         case EndForLoop: return "ENDFOR";
         case From: return "FROM";
+        case With: return "WITH";
         case TextLit: return "textlit";
         case IntLit: return "intlit";
         case RealLit: return "reallit";
