@@ -3,8 +3,8 @@
 
 int indent = 0;
 
-//ofstream OutputProgram("output.cpp");
-ostream& OutputProgram = cout;
+ofstream OutputProgram("output.cpp");
+//ostream& OutputProgram = cout;
 
 // use templates for functinos
 // template <typename T> 
@@ -439,7 +439,7 @@ bool parsePrint(token tokens[], int& current)
         return false;
     }
 
-    OutputProgram << "cout << " << expression << ";" << endl;
+    OutputProgram << "cout << " << expression << " << endl;" << endl;
 
     return true;
 }
@@ -453,16 +453,24 @@ bool parseCall(token tokens[], int& current)
         cerr << "procedure not defined before call" << endl;
         return false;
     }
-    OutputProgram << procedureName << "(";
+    OutputProgram << procedureName;
     current++;
 
     if(tokens[current].ttype == With) {
         current++;
-    } else {
+        OutputProgram << "(";
+    } 
+    // Guess that they missed the with statement 
+    else if (tokens[current].ttype == Identifier) {
         errorMessage(tokens[current]);
         cerr << "expected 'WITH', but got " << tokens[current].content << endl; 
         return false;
     } 
+    // No variables to pass case
+    else {
+        OutputProgram << "();" << endl;
+        return true;
+    }
     
     int index = 0; 
     // parse the passed parameters
@@ -478,7 +486,7 @@ bool parseCall(token tokens[], int& current)
             return false;
         }
 
-        OutputProgram << typeToString(expressionType) << " " << expression;
+        OutputProgram << expression;
         
         index++;
         // Move to next identifer if there are multiple
@@ -551,7 +559,7 @@ bool parseForLoop(token tokens[], int& current)
         cerr << "Error: Error parsing for loop, requires integer bound" << endl;
         return false;
     } 
-    OutputProgram << identifier << " <= " << expression << "; " << identifier << "++) {" << endl;
+    OutputProgram << identifier << " < " << expression << "; " << identifier << "++) {" << endl;
 
     indent++;
     // while not EndForLoop -> body

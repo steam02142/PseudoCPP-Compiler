@@ -1,35 +1,11 @@
-FUNCTION add ( test: int, best: real[] ) -> int
-    SET arr TO [ 1, 2, 3 ]
-    SET arrtwo TO [ "yes" ]
-    SET index TO 1
-    
-
-    SET newvar TO 11    
-
-    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
-        SET newvar TO 11
-        SET newvar TO 11
-    ENDIF
-
-    SET newvar TO 11    
-
-    FOR i FROM 1 TO 10
-        SET arr[i] TO 1
-    ENDFOR
-
-    RETURN index
-
- 
+FUNCTION multiply ( x: int, y: int ) -> int
+    SET result TO ( x * y )
+    PRINT result
+    RETURN result
 ENDFUNCTION
 
-
 MAIN
-    SET intval TO 3
-    SET realval TO [ 2.2, 5.5 ]
-
-    CALL add WITH intval, realval   
-
-    SET intval TO 3
-
-
+    SET a TO 5
+    SET b TO 10
+    CALL multiply WITH a, b
 ENDMAIN

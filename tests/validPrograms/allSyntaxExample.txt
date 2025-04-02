@@ -1,0 +1,41 @@
+FUNCTION printArr ( arrMax: int, arr: real[] ) -> int
+    SET arrName TO ""
+    IF arrMax > 0
+        PRINT "You have an array, what do you want to name it?"
+        READ arrName
+        PRINT "The name is: "
+        PRINT arrName
+    ENDIF 
+
+
+    FOR i FROM 0 TO arrMax
+        PRINT arr[i]
+    ENDFOR
+
+    RETURN arrMax
+ENDFUNCTION
+
+FUNCTION add ( ) -> int
+    SET varOne TO 0
+    SET varTwo TO 0
+
+    PRINT "Enter value for first number"
+    READ varOne
+    PRINT "Enter value for second number"
+    READ varTwo
+
+    PRINT ( varOne + varTwo )
+
+    RETURN ( varOne + varTwo )
+ENDFUNCTION
+
+
+MAIN
+    SET arrSize TO 2
+    SET realArr TO [ 2.2, 5.5 ]
+
+    CALL printArr WITH arrSize, realArr   
+
+    CALL add
+
+ENDMAIN

@@ -157,12 +157,9 @@ string ttypeTostr(unsigned int ttype)
         case EndMain: return "ENDMAIN";
         case Read: return "READ";
         case Print: return "PRINT";
-        case Compute: return "COMPUTE";
         case Set: return "SET";
         case To: return "TO";
         case Call: return "CALL";
-        case Increment: return "INCREMENT";
-        case Decrement: return "DECREMENT";
         case Add: return "+"; 
         case Sub: return "-"; 
         case Mul: return "*"; 
