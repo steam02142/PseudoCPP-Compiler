@@ -435,15 +435,30 @@ bool parseRead(token tokens[], int& current)
 
 bool parsePrint(token tokens[], int& current)
 {
-    string expression;
-    if(parseExpr(tokens, current, expression) == invalid){
-        cerr << "Error: Error parsing print" << endl;
+   OutputProgram << "cout";
+    
+    // Parse first expression
+    string expr;
+    if (parseExpr(tokens, current, expr) == invalid) {
+        cerr << "Error parsing print expression" << endl;
         return false;
     }
-
-    OutputProgram << "cout << " << expression << " << endl;" << endl;
-
-    return true;
+    OutputProgram << " << " << expr;
+    
+    // If there are extra expressions, handle them
+    while (tokens[current].ttype == Add) {
+        current++;
+        expr.clear();
+        
+        if (parseExpr(tokens, current, expr) == invalid) {
+            cerr << "Error parsing concatenated expression" << endl;
+            return false;
+        }
+        OutputProgram << " << " << expr;
+    }
+    
+    OutputProgram << " << endl;" << endl;
+    return true; 
 }
 
 bool parseCall(token tokens[], int& current)
