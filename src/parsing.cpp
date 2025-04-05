@@ -3,8 +3,8 @@
 
 int indent = 0;
 
-//ofstream OutputProgram("output.cpp");
-ostream& OutputProgram = cout;
+ofstream OutputProgram("output.cpp");
+//ostream& OutputProgram = cout;
 
 // use templates for functinos
 // template <typename T> 
@@ -233,7 +233,6 @@ bool parseProcedure(token tokens[], int& current, int size)
         procedureType = dataTypeToString(tokens[current]);
         addProcedureReturnType(tokenTypeToSymbolType(tokens[current].ttype));
 
-        cout << getProcedureReturnType(procedureName) << endl;
         current++;
     } else {
         errorMessage(tokens[current]);
@@ -456,12 +455,15 @@ bool parseCall(token tokens[], int& current)
         cerr << "procedure not defined before call" << endl;
         return false;
     }
-    OutputProgram << procedureName;
+    
     current++;
+    
+    // Buffer the call until we know if there is a 'returning' 
+    stringstream callBuffer;
+    callBuffer << procedureName;
 
     if(tokens[current].ttype == With) {
-        current++;
-        OutputProgram << "(";
+        callBuffer << "(";
     } 
     // Guess that they missed the with statement 
     else if (tokens[current].ttype == Identifier) {
@@ -471,35 +473,74 @@ bool parseCall(token tokens[], int& current)
     } 
     // No variables to pass case
     else {
-        OutputProgram << "();" << endl;
-        return true;
+        callBuffer << "()";
     }
     
-    int index = 0; 
-    // parse the passed parameters
-    while(tokens[current].ttype == Identifier) 
-    {
-        //cout << "Deal with call later" << endl;
-        string expression;
-        SymbolType expressionType = parseExpr(tokens, current, expression);
-        SymbolType procedureParamType = getProcedureParamType(procedureName, index);
+    if(tokens[current].ttype == With) {
+        int index = 0;
+        // skip WITH
+        current++; 
+        // Record and check the types of all the parameters
+        while(tokens[current].ttype == Identifier) 
+        {
+            string expression;
+            SymbolType expressionType = parseExpr(tokens, current, expression);
+            SymbolType procedureParamType = getProcedureParamType(procedureName, index);
 
-        if(expressionType != procedureParamType) {
-            cerr << "Error: Type mismatch in procedure call" << endl;
+            if(expressionType != procedureParamType) {
+                cerr << "Error: Type mismatch in procedure call" << endl;
+                return false;
+            }
+
+            callBuffer << expression;
+            
+            index++;
+            
+            if(tokens[current].ttype == Comma) { 
+                callBuffer << ", ";
+                current++; 
+            }
+        }
+        callBuffer << ")";
+    }
+
+    // Check if returning a value
+    if(tokens[current].ttype == Returning) {
+        current++;
+        
+        if(tokens[current].ttype != Identifier) {
+            errorMessage(tokens[current]);
+            cerr << "expected identifier after 'Returning', but got " << tokens[current].content << endl;
             return false;
         }
-
-        OutputProgram << expression;
         
-        index++;
-        // Move to next identifer if there are multiple
-        if(tokens[current].ttype == Comma) { 
-            OutputProgram << ", ";
-            current++; 
+        string returnVarName = tokens[current].content;
+        current++;
+        
+        // Check if variable exists and is compatible with procedure type
+        if(variableExists(returnVarName)) {
+            SymbolType varType = getVariableType(returnVarName);
+            SymbolType procReturnType = getProcedureReturnType(procedureName);
+            
+            if(calculateType(varType, procReturnType) == invalid) {
+                errorMessage(tokens[current]);
+                cerr << "incompatible type for return value assignment" << endl;
+                return false;
+            }
+            OutputProgram << returnVarName << " = " << callBuffer.str() << ";" << endl;
+        } else {
+            // Variable doesn't exist. Add to sym table
+            SymbolType procReturnType = getProcedureReturnType(procedureName);
+            insertVariable(returnVarName, procReturnType);
+            string returnVarType = typeToString(procReturnType);
+            OutputProgram << returnVarType << " " << returnVarName << " = " << callBuffer.str() << ";" << endl;
         }
-    }    
+        
+        
+    } else {
+        OutputProgram << callBuffer.str() << ";" << endl;
+    }
 
-    OutputProgram << ");" << endl;
     return true;
 }
 

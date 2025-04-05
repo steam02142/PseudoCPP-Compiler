@@ -33,9 +33,10 @@ ENDFUNCTION
 MAIN
     SET arrSize TO 2
     SET realArr TO [ 2.2, 5.5 ]
+    SET test TO 0
 
     CALL printArr WITH arrSize, realArr   
 
-    CALL add
+    CALL add RETURNING test
 
 ENDMAIN

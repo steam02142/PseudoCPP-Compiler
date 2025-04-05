@@ -1,25 +1,27 @@
-SET gvar TO 5
-SET gvar TO 6
-SET test TO "best stuff"
-
-FUNCTION add ( var: int , vartwo: text ) -> int
-    SET newvar TO 10
-    READ newvar
-    PRINT ( newvar + var )
-
-    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
-        SET newvar TO 11
+FUNCTION printFibonacci ( n: int ) -> int
+    SET a TO 0
+    SET b TO 1
+    
+    PRINT "Fibonacci sequence:"
+    PRINT a
+    IF n > 1
+        PRINT b
     ENDIF
- 
+    
+    FOR i FROM 2 TO n
+        SET next TO ( a + b )
+        PRINT next
+        SET a TO b
+        SET b TO next
+    ENDFOR
+    
+    RETURN n
 ENDFUNCTION
 
-FUNCTION badd ( var: int , vartwo: text ) -> int
-    SET newvar TO 10
-    READ newvar
-    PRINT ( newvar + var )
-
-    IF  1 > 2 && ( 2 < 10 || 4 == 0 )
-        SET newvar TO 11
-    ENDIF
-ENDFUNCTION
-
+MAIN
+    SET numvars TO 10
+    CALL printFibonacci WITH numvars RETURNING count
+    PRINT "Printed " + count + " numbers"
+    PRINT count
+    PRINT " numbers"
+ENDMAIN
