@@ -199,6 +199,7 @@ string ttypeTostr(unsigned int ttype)
         case SquareRBrack: return "]";
         case Identifier: return "identifier";
         case Parameter: return "parameter";
+        case Returning: return "RETURNING";
         case EndFunction: return "ENDFUNCTION";
         default: return "Invalid";
     }

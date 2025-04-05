@@ -3,8 +3,8 @@
 
 int indent = 0;
 
-ofstream OutputProgram("output.cpp");
-//ostream& OutputProgram = cout;
+//ofstream OutputProgram("output.cpp");
+ostream& OutputProgram = cout;
 
 // use templates for functinos
 // template <typename T> 
@@ -231,6 +231,9 @@ bool parseProcedure(token tokens[], int& current, int size)
 
     if(isDataType(tokens[current])) {
         procedureType = dataTypeToString(tokens[current]);
+        addProcedureReturnType(tokenTypeToSymbolType(tokens[current].ttype));
+
+        cout << getProcedureReturnType(procedureName) << endl;
         current++;
     } else {
         errorMessage(tokens[current]);

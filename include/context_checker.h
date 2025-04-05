@@ -29,6 +29,7 @@ struct ProcParam {
 struct ProcedureEntry {
     string name;
     int numParams;
+    SymbolType type;
     struct ProcParam parameters[MaxParams];
 };
 
@@ -57,8 +58,12 @@ bool insertProcedure(string name);
 
 bool insertProcedureParam(string name, SymbolType type, bool isArray = false);
 
+void addProcedureReturnType(SymbolType procType);
+
 bool procedureExists(string name);
 
 SymbolType getProcedureParamType(string procedureName, int paramPosition);
+
+SymbolType getProcedureReturnType(string name);
 
 void printProcedures();

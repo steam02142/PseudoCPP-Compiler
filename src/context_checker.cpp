@@ -192,6 +192,23 @@ bool insertProcedureParam(string name, SymbolType type, bool isArray)
     return true;
 }
 
+void addProcedureReturnType(SymbolType procType)
+{
+    int currentProc = numProcedures - 1;
+    ProcedureTable[currentProc].type = procType;
+}
+
+SymbolType getProcedureReturnType(string name)
+{
+    for(int i = 0; i < numProcedures; i++) {
+        if(ProcedureTable[i].name == name) {
+            return ProcedureTable[i].type;
+        }
+    }
+
+    return invalid;
+}
+
 void printProcedures()
 {
     for(int i = 0; i < numProcedures; i++){

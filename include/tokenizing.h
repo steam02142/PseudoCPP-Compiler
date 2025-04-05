@@ -11,6 +11,7 @@ enum TokenType {
     Lt, Gt, Le, Ge, Ne, Eq, And, Or, Not, If, Else, EndIf, ForLoop, EndForLoop, From, TypeArrow, Return,
     Integer, Real, Boolean, Text, Parameter, Comma, LBrack, RBrack, LRBrack, SquareRBrack, SquareLBrack, EndFunction
 };
+// Integer is 40
 
 // 
 struct token {
