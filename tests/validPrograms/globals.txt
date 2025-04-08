@@ -1,26 +1,12 @@
-FUNCTION printFibonacci ( n: int ) -> int
-    SET a TO 0
-    SET b TO 1
-    
-    PRINT "Fibonacci sequence:"
-    PRINT a
-    IF n > 1
-        PRINT b
+FUNCTION countdown ( n: int ) -> int
+    PRINT n
+    IF n > 0
+        CALL countdown WITH ( n - 1 ) RETURNING n
     ENDIF
-    
-    FOR i FROM 2 TO n
-        SET next TO ( a + b )
-        PRINT next
-        SET a TO b
-        SET b TO next
-    ENDFOR
-    
     RETURN n
 ENDFUNCTION
 
 MAIN
-    SET numvars TO 10
-    CALL printFibonacci WITH numvars RETURNING count
-    PRINT "Printed " + count + " numbers"
-
+    SET num TO 3
+    CALL countdown WITH num
 ENDMAIN

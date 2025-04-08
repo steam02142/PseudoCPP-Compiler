@@ -1,0 +1,22 @@
+FUNCTION linearSearch ( arr: real[], size: int, target: real ) -> int
+    FOR i FROM 0 TO ( size - 1 )
+        IF arr[i] == target
+            RETURN i
+        ENDIF
+    ENDFOR
+    RETURN -1 
+ENDFUNCTION
+
+MAIN
+    SET numbers TO [5.2, 3.1, 8.4, 1.7, 9.3]
+    SET target TO 8.4
+    
+    SET size TO 5
+    CALL linearSearch WITH numbers, size, target RETURNING foundIndex
+    
+    IF foundIndex == -1
+        PRINT "Value not found"
+    ELSE
+        PRINT "Found target '" + target  + "' at position: " + foundIndex
+    ENDIF
+ENDMAIN

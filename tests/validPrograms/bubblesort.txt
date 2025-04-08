@@ -1,0 +1,39 @@
+FUNCTION swap ( arr: real[], i: int, j: int ) -> void
+    SET temp TO arr[i]
+    SET arr[i] TO arr[j]
+    SET arr[j] TO temp
+ENDFUNCTION
+
+FUNCTION bubbleSort ( arr: real[], size: int ) -> void
+    SET outerBound TO ( size - 1 )
+    
+    FOR i FROM 0 TO outerBound
+        SET innerBound TO ( outerBound - i )
+        
+        FOR j FROM 0 TO innerBound
+            SET nextPos TO ( j + 1 )
+            IF arr[j] > arr[nextPos]
+                CALL swap WITH arr, j, nextPos
+            ENDIF
+        ENDFOR
+    ENDFOR
+ENDFUNCTION
+
+FUNCTION printArray ( arr: real[], size: int ) -> void
+    FOR i FROM 0 TO size 
+        PRINT arr[i]
+    ENDFOR
+ENDFUNCTION
+
+MAIN
+    SET numbers TO [5.2, 3.1, 8.4, 1.7, 9.3]
+    SET arrSize TO 5
+    
+    PRINT "Original array:"
+    CALL printArray WITH numbers, arrSize
+    
+    CALL bubbleSort WITH numbers, arrSize
+    
+    PRINT "Sorted array:"
+    CALL printArray WITH numbers, arrSize
+ENDMAIN

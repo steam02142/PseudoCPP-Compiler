@@ -191,6 +191,7 @@ string ttypeTostr(unsigned int ttype)
         case Real: return "real";
         case Boolean: return "bool";
         case Text: return "text";
+        case Void: return "void";
         case Comma: return ",";
         case LBrack: return "(";
         case RBrack: return ")";
