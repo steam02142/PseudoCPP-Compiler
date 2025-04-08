@@ -60,7 +60,7 @@ bool isLiteral(token token)
 
 bool isDataType(token token)
 {
-    if(token.ttype == Integer || token.ttype == Real || token.ttype == Text || token.ttype == Boolean)
+    if(token.ttype == Integer || token.ttype == Real || token.ttype == Text || token.ttype == Boolean || token.ttype == Void)
     {
         return true;
     }
@@ -74,6 +74,7 @@ string dataTypeToString(token token)
         case Real: return "double";
         case Text: return "string";
         case Boolean: return "bool";
+        case Void: return "void";
         default: return "Invalid";
     }
 }
@@ -252,7 +253,7 @@ bool parseProcedure(token tokens[], int& current, int size)
         }
     }
 
-    if (procedureType != typeToString(returnType)) {
+    if (procedureType != typeToString(returnType) && procedureType != "void") {
         errorMessage(tokens[current]);
         cerr << "Return type doesn't match procedure return type" << endl;
         return false;
@@ -311,7 +312,7 @@ bool parseParamList(token tokens[], int& current, string& paramlist)
                 }
                 current++;
 
-                paramlist += "vector<" + dataTypeToString(dataTypeToken) + "> " + paramName; 
+                paramlist += "vector<" + dataTypeToString(dataTypeToken) + ">& " + paramName; 
                 // add as procedure param for type checking during call later
                 insertProcedureParam(paramName, tokenTypeToSymbolType(dataTypeToken.ttype), true);
                 // add as variable so we can check it exists before use
@@ -555,11 +556,15 @@ bool parseCall(token tokens[], int& current)
             }
             OutputProgram << returnVarName << " = " << callBuffer.str() << ";" << endl;
         } else {
+            cout << "ADDING SYMBNOL " << returnVarName << endl;
             // Variable doesn't exist. Add to sym table
             SymbolType procReturnType = getProcedureReturnType(procedureName);
             insertVariable(returnVarName, procReturnType);
             string returnVarType = typeToString(procReturnType);
             OutputProgram << returnVarType << " " << returnVarName << " = " << callBuffer.str() << ";" << endl;
+
+
+            cout << "EXISTS? " << variableExists(returnVarName) << endl;
         }
         
         

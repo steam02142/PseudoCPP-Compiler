@@ -86,7 +86,7 @@ bool variableInScope(string name, int scope)
 
 bool variableExists(string name)
 {
-    for(int i = activeScopes - 1; i >= 0; i--){
+    for(int i = activeScopes; i >= 0; i--){
         int scopeNumberOnStack = scopes[i];
         if(variableInScope(name, scopeNumberOnStack)){ return true; }
     } 
@@ -95,7 +95,7 @@ bool variableExists(string name)
 
 SymbolType getVariableType(string name)
 {
-    for(int scope = activeScopes - 1; scope >= 0; scope--){
+    for(int scope = activeScopes; scope >= 0; scope--){
         int scopeNumberOnStack = scopes[scope];
         for(int i = 0; i < numVariables; i++){
             if(VariableTable[i].name == name && VariableTable[i].scope == scopeNumberOnStack) {
