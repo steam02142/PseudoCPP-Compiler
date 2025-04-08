@@ -66,4 +66,6 @@ SymbolType getProcedureParamType(string procedureName, int paramPosition);
 
 SymbolType getProcedureReturnType(string name);
 
+int getProcedureNumParams(string name);
+
 void printProcedures();

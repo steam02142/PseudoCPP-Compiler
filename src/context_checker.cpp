@@ -209,6 +209,18 @@ SymbolType getProcedureReturnType(string name)
     return invalid;
 }
 
+int getProcedureNumParams(string name)
+{
+    for(int i = 0; i < numProcedures; i++) {
+        if(ProcedureTable[i].name == name) {
+            return ProcedureTable[i].numParams;
+        }
+    }
+
+    // procedure doesn't exist
+    return -1;
+}
+
 void printProcedures()
 {
     for(int i = 0; i < numProcedures; i++){

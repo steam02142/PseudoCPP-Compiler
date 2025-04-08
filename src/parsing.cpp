@@ -495,11 +495,21 @@ bool parseCall(token tokens[], int& current)
         int index = 0;
         // skip WITH
         current++; 
+
+        int numParams = getProcedureNumParams(procedureName);
+        
+        // loop through all params
         // Record and check the types of all the parameters
-        while(tokens[current].ttype == Identifier) 
-        {
+        for(int i = 0; i < numParams; i++){
             string expression;
             SymbolType expressionType = parseExpr(tokens, current, expression);
+
+            if(expressionType == invalid) {
+                errorMessage(tokens[current]);
+                cerr << "expected procedure call parameter, but got " << tokens[current].content << endl;
+                return false;
+            }
+
             SymbolType procedureParamType = getProcedureParamType(procedureName, index);
 
             if(expressionType != procedureParamType) {
@@ -516,6 +526,7 @@ bool parseCall(token tokens[], int& current)
                 current++; 
             }
         }
+
         callBuffer << ")";
     }
 
@@ -778,9 +789,9 @@ SymbolType parseExpr(token tokens[], int& current, string& expression)
     }
     
     else {
-        // Reached end of input without bracket
+        // No valid match, let the uppper level handle error message (context based)
         errorMessage(tokens[current]);
-        cerr << "missing closing bracket " << endl;
+        cerr << "error in the weird section (remove this once verified) " << endl;
         return invalid;
     }
     
