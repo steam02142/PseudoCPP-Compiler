@@ -1,0 +1,17 @@
+FUNCTION fib ( n: int ) -> int
+    IF n <= 1
+        RETURN n
+    ENDIF
+
+    CALL fib WITH ( n - 1 ) RETURNING a
+    CALL fib WITH ( n - 2 ) RETURNING b
+
+    RETURN ( a + b )
+ENDFUNCTION
+
+MAIN
+    SET input TO 15
+    SET result TO "final"
+    CALL fib WITH input RETURNING result
+    PRINT result
+ENDMAIN

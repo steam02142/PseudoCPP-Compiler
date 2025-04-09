@@ -7,6 +7,5 @@ FUNCTION countdown ( n: int ) -> int
 ENDFUNCTION
 
 MAIN
-    SET num TO 3
-    CALL countdown WITH num
+    CALL countdown WITH "a"
 ENDMAIN

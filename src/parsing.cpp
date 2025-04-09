@@ -27,11 +27,12 @@ bool parse(token tokens[], int numTokens)
                 << "using namespace std;" << endl;
 
     if (!parseGlobals(tokens, pos, numTokens)) {
-        cerr << "Error parsing globals" << endl;
+        //cerr << "Error parsing globals" << endl;
     }
 
     if (!parseMain(tokens, pos)) {
-        cerr << "Error parsing main" << endl;
+        //cerr << "Error parsing main" << endl;
+        return false;
     }
 
 
@@ -40,7 +41,6 @@ bool parse(token tokens[], int numTokens)
 
 void errorMessage(token tokens)
 {
-    cerr << endl << "-----------------------------" << endl;
     cerr << "Error (line " << tokens.line << ", col " << tokens.column << "): ";
 }
 
@@ -107,14 +107,14 @@ bool parseGlobals(token tokens[], int& current, int size)
     if(tokens[current].ttype == Set) {
         current++;
         if (!parseGlobalVariable(tokens, current, size)) { 
-            cerr << "Error: Issue parsing global variables" << endl;
+            //cerr << "Error: Issue parsing global variables" << endl;
             return false; 
         }
     } else if(tokens[current].ttype == Function) {
         current++;
         //parse
         if (!parseProcedure(tokens, current, size)) { 
-            cerr << "Error: Issue parsing procedure declaration" << endl;
+            //cerr << "Error: Issue parsing procedure declaration" << endl;
             return false; 
         }
     }
@@ -147,7 +147,7 @@ bool parseGlobalVariable(token tokens[], int& current, int size)
 
     expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid) {
-        cerr << "Error: Error occured while parsing expression" << endl;
+        //cerr << "Error: Error occured while parsing expression" << endl;
         return false;
     }
     string type = typeToString(expressionType); 
@@ -187,7 +187,7 @@ bool parseMain(token tokens[], int& current)
     SymbolType returnType = invalid;
     while(tokens[current].ttype != EndMain){
         if (!parseBody(tokens, current, returnType)) {
-            cerr << "Error: Issue parsing procedure body" << endl;
+            //cerr << "Error: Issue parsing procedure body" << endl;
             return false;
         }
     }
@@ -248,7 +248,7 @@ bool parseProcedure(token tokens[], int& current, int size)
     SymbolType returnType = invalid;
     while(tokens[current].ttype != EndFunction){
         if (!parseBody(tokens, current, returnType)) {
-            cerr << "Error: Issue parsing procedure body" << endl;
+            //cerr << "Error: Issue parsing procedure body" << endl;
             return false;
         }
     }
@@ -384,7 +384,7 @@ bool parseBody(token tokens[], int& current, SymbolType& returnType)
             case If:
                 current++;
                 if (!parseIf(tokens, current)) { 
-                    cerr << "Error: Issue parsing IF statement" << endl;
+                    //cerr << "Error: Issue parsing IF statement" << endl;
                     return false; 
                 }
                 break;
@@ -399,7 +399,7 @@ bool parseBody(token tokens[], int& current, SymbolType& returnType)
                 current++;
                 returnType = parseReturn(tokens, current);
                 if(returnType == invalid) { 
-                    cerr << "Error: Issue parsing RETURN statement" << endl;
+                    //cerr << "Error: Issue parsing RETURN statement" << endl;
                     return false; 
                 }
                 break;
@@ -441,7 +441,7 @@ bool parsePrint(token tokens[], int& current)
     // Parse first expression
     string expr;
     if (parseExpr(tokens, current, expr) == invalid) {
-        cerr << "Error parsing print expression" << endl;
+        //cerr << "Error parsing print expression" << endl;
         return false;
     }
     OutputProgram << " << " << expr;
@@ -452,7 +452,7 @@ bool parsePrint(token tokens[], int& current)
         expr.clear();
         
         if (parseExpr(tokens, current, expr) == invalid) {
-            cerr << "Error parsing concatenated expression" << endl;
+            //cerr << "Error parsing concatenated expression" << endl;
             return false;
         }
         OutputProgram << " << " << expr;
@@ -514,7 +514,8 @@ bool parseCall(token tokens[], int& current)
             SymbolType procedureParamType = getProcedureParamType(procedureName, index);
 
             if(expressionType != procedureParamType) {
-                cerr << "Error: Type mismatch in procedure call" << endl;
+                errorMessage(tokens[current - 1]);
+                cerr << "Type mismatch in procedure call" << endl;
                 return false;
             }
 
@@ -556,15 +557,11 @@ bool parseCall(token tokens[], int& current)
             }
             OutputProgram << returnVarName << " = " << callBuffer.str() << ";" << endl;
         } else {
-            cout << "ADDING SYMBNOL " << returnVarName << endl;
             // Variable doesn't exist. Add to sym table
             SymbolType procReturnType = getProcedureReturnType(procedureName);
             insertVariable(returnVarName, procReturnType);
             string returnVarType = typeToString(procReturnType);
             OutputProgram << returnVarType << " " << returnVarName << " = " << callBuffer.str() << ";" << endl;
-
-
-            cout << "EXISTS? " << variableExists(returnVarName) << endl;
         }
         
         
@@ -641,7 +638,7 @@ bool parseForLoop(token tokens[], int& current)
     SymbolType returnType = invalid;
     while(tokens[current].ttype != EndForLoop){
         if (!parseBody(tokens, current, returnType)) {
-            cerr << "Error: Issue parsing for loop body" << endl;
+            //cerr << "Error: Issue parsing for loop body" << endl;
             return false;
         }
     }
@@ -665,7 +662,7 @@ SymbolType parseReturn(token tokens[], int& current)
     string expression;
     SymbolType expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid){
-        cerr << "Error: Error parsing print" << endl;
+        //cerr << "Error: Error parsing print" << endl;
         return invalid;
     }
 
@@ -836,7 +833,7 @@ bool parseVariable(token tokens[], int& current)
 
     expressionType = parseExpr(tokens, current, expression);
     if(expressionType == invalid) {
-        cerr << "Error occured while parsing expression" << endl;
+        //cerr << "Error occured while parsing expression" << endl;
         return false;
     }
     string type = typeToString(expressionType); 
@@ -965,8 +962,8 @@ bool parseIf(token tokens[], int& current) {
         
         while (tokens[current].ttype != EndIf) {
             if (!parseBody(tokens, current, dummyReturn)) {
-                errorMessage(tokens[current]);
-                cerr << "Error in ELSE body" << endl;
+                //errorMessage(tokens[current]);
+                //cerr << "Error in ELSE body" << endl;
                 return false;
             }
         }
