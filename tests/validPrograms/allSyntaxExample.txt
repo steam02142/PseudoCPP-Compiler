@@ -33,7 +33,7 @@ ENDFUNCTION
 MAIN
     SET arrSize TO 2
     SET realArr TO [ 2.2, 5.5 ]
-    SET test TO 0
+    SET test TO ( 5 + ( 10 % 5 ) )
 
     CALL printArr WITH arrSize, realArr   
 

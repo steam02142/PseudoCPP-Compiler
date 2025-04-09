@@ -10,6 +10,10 @@ int main()
 
     numTokens = tokenize(tokens);
     if (numTokens > 0){
-        parse(tokens, numTokens);
+        if(parse(tokens, numTokens)) {
+            cout << "Successfully translated to C++ - output written to output.cpp" << endl;
+        }
+    } else {
+        cerr << "Error: no valid tokens" << endl;
     }
 }

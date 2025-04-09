@@ -14,8 +14,8 @@ ofstream OutputProgram("output.cpp");
 
 bool parse(token tokens[], int numTokens)
 {
-    printTokens(tokens, numTokens);
-    cout << "Beginning parsing:" << endl << endl;
+    //printTokens(tokens, numTokens);
+    //cout << "Beginning parsing:" << endl << endl;
     
     int pos = 0;
 
@@ -46,7 +46,7 @@ void errorMessage(token tokens)
 
 string getIndent()
 {
-    return string(indent * 3, ' ');
+    return string(indent * 2, ' ');
 }
 
 bool isLiteral(token token)
@@ -551,7 +551,7 @@ bool parseCall(token tokens[], int& current)
             SymbolType procReturnType = getProcedureReturnType(procedureName);
             
             if(calculateType(varType, procReturnType) == invalid) {
-                errorMessage(tokens[current]);
+                errorMessage(tokens[current - 1]);
                 cerr << "incompatible type for return value assignment" << endl;
                 return false;
             }

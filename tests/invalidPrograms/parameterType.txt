@@ -7,5 +7,5 @@ FUNCTION countdown ( n: int ) -> int
 ENDFUNCTION
 
 MAIN
-    CALL countdown WITH "a"
+    CALL countdown WITH true
 ENDMAIN

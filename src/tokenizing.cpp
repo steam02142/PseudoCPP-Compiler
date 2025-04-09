@@ -10,7 +10,7 @@ int tokenize(token tokens[]) {
     bool inArray = false;
     bool invalidTokenDetected = false;
 
-    cout << "Beginning scanning:\n\n";
+    //cout << "Beginning scanning:\n\n";
 
     while (cin.get(c)) {
         if (c == '\n') {
