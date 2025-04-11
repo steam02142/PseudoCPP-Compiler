@@ -73,7 +73,6 @@ The compiler throws error messages in the format 'Error (line x, col y): message
 1. Variables
     - tests for incompatible type assignment (e.g. assigning a string to an integer). This works with expressions as well
     - ensuring variables exist before use
-    - 
 
 2. Functions
     - ensures actual returned type matches function return type
